@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>668</height>
+    <height>635</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,14 +36,20 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="editable">
+     <bool>false</bool>
+    </property>
+    <property name="currentText">
+     <string>Подробная информация о таблицах</string>
+    </property>
     <item>
      <property name="text">
-      <string>База данных PostgreSQL</string>
+      <string>Подробная информация о таблицах</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>База данных Microsoft Access</string>
+      <string>Все таблицы текущей базы данных</string>
      </property>
     </item>
    </widget>
