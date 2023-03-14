@@ -17,6 +17,12 @@
 #include <QSql>
 #include <QSqlQueryModel>
 #include <QMessageBox>
+// Для работы с записями и полями таблиц
+#include <QSqlRecord>
+#include <QSqlField>
+// Для работы с оформлением
+#include <QIcon>
+#include <QWidget>
 
 namespace Ui {
 class SQL_Window_Main;
@@ -29,6 +35,15 @@ class SQL_Window_Main : public QMainWindow
 public:
     explicit SQL_Window_Main(QWidget *parent = nullptr);
     ~SQL_Window_Main();
+
+    // Для получения информации о БД из окна логина
+    //void get_DB_data_from_login(QSqlDatabase DB_Data);
+    // Почему - то даже при успешном переносе не хочет открываться QSqlDatabase(invalid)
+    // Теперь работает
+    void get_DB_data_from_login(QSqlDatabase DB_Data);
+
+    // Передача данных о текущей таблице в insert
+    int take_list_of_Tables(int Current_table_number_for_insert);
 
 // Инициализация для второго окна
 signals:
@@ -55,6 +70,7 @@ private slots:
 
     void on_pushButton_7_clicked();
 
+
 private:
     Ui::SQL_Window_Main *ui;
     // Переменные для работы с БД
@@ -67,11 +83,13 @@ private:
     void changeIndex(int i);
 
     // Инициализация окна для вставки значений
+    // Временно закомменчено - ошибка сборки
     Dialog_SQL_Insert *InsertWindow;
     // Инициализация окна для удаления значений
     Dialog_SQL_Delete *DeleteWindow;
     // Инициализация окна для обновления значений
     dialog_sql_update *UpdateWindow;
+
 };
 
 #endif // SQL_WINDOW_MAIN_H

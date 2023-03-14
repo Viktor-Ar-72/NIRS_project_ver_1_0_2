@@ -9,7 +9,10 @@
 #include <QSqlQueryModel>
 #include <QDebug>
 #include <QSqlTableModel>
+#include <QSqlRecord>
 
+// Для генераторов
+#include <random>
 namespace Ui {
 class Dialog_SQL_Insert;
 }
@@ -21,6 +24,14 @@ class Dialog_SQL_Insert : public QDialog
 public:
     explicit Dialog_SQL_Insert(QWidget *parent = nullptr);
     ~Dialog_SQL_Insert();
+
+    // Для получения данных о БД
+    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types);
+    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data);
+    // Функции реализации генераторов
+    //int VihrMersenna_Gen(int gen_VM_left_edge, int gen_VM_right_edge, std::mt19937_64 Gen_engine);
+    int* VihrMersenna_Gen_Int(int* massiv_gen_numbers, int rasmer, int gen_VM_left_edge, int get_VM_right_edge);
+    int* MacLarenMarsalii_Gen_Int(int* massiv_gen_numbers, int rasmer, int gen_MM_left_edge, int gen_MM_right_edge);
 
 signals:
     // Подключение окна InsertWindow
@@ -51,6 +62,25 @@ private slots:
 
     void on_taskVariant_editingFinished();
 
+    void on_comboBox_algoritms_activated(int index);
+
+    void on_lineEdit_kolvo_new_strok_editingFinished();
+
+    void on_lineEdit_int_left_editingFinished();
+
+    void on_lineEdit_int_right_editingFinished();
+
+    void on_lineEdit_varchar_lenght_editingFinished();
+
+    void on_lineEdit_real_left_editingFinished();
+
+    void on_lineEdit_real_right_editingFinished();
+
+    void on_lineEdit_bytea_left_editingFinished();
+
+    void on_lineEdit_bytea_right_editingFinished();
+
+
 private:
     Ui::Dialog_SQL_Insert *ui;
     int N_ActiveRow;
@@ -59,6 +89,10 @@ private:
     QSqlDatabase DB;
     QSqlQuery *QUERRY;
     QSqlTableModel *TABLE_MODEL;
+    // Инициализация окна Main
+    //SQL_Window_Main *SQL_Main_Window_Init;
+    //SQL_Window_Main *WindMainSQl;
+
 };
 
 #endif // DIALOG_SQL_INSERT_H
