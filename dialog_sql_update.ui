@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dialog_sql_update</class>
+ <widget class="QDialog" name="dialog_sql_update">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>403</width>
+    <height>321</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QTabWidget" name="tabWidget_Update">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>10</y>
+     <width>401</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Студенты</string>
+    </attribute>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>18</x>
+       <y>10</y>
+       <width>301</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Идентификатор студента для обновления данных</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>40</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ФИО</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>18</x>
+       <y>130</y>
+       <width>51</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Группа</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>18</x>
+       <y>200</y>
+       <width>301</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Номер варианта (0 - автоматическая генерация)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_student_id">
+     <property name="geometry">
+      <rect>
+       <x>318</x>
+       <y>10</y>
+       <width>61</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_student_var">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>200</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_full_name">
+     <property name="geometry">
+      <rect>
+       <x>68</x>
+       <y>41</y>
+       <width>311</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_student_group">
+     <property name="geometry">
+      <rect>
+       <x>68</x>
+       <y>130</y>
+       <width>311</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>Задания</string>
+    </attribute>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Сложность</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_task_id">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>10</y>
+       <width>61</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>200</y>
+       <width>301</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Номер варианта (0 - автоматическая генерация)</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>311</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Идентификатор задания для обновления данных</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_task_var">
+     <property name="geometry">
+      <rect>
+       <x>302</x>
+       <y>200</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>70</y>
+       <width>111</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string> Текст</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_task_complication">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>40</y>
+       <width>291</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>90</y>
+       <width>55</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>задания</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_task_Text">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>70</y>
+       <width>291</width>
+       <height>121</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QSplitter" name="splitter">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>280</y>
+     <width>331</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <widget class="QPushButton" name="pushButton_OK">
+    <property name="text">
+     <string>ОК</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Esc">
+    <property name="text">
+     <string>Отмена</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
