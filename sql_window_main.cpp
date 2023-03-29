@@ -593,6 +593,18 @@ void SQL_Window_Main::on_pushButton_3_clicked()
 
 void SQL_Window_Main::on_pushButton_4_clicked()
 {
+    if(Current_Table_Number == 0)
+    {
+        // Значит, мы сейчас на таблице пользовательского запроса
+        QMessageBox::warning(this, "Warning", "Вы находитесь на таблице пользовательского запроса. /n Вставка будет осуществляться в первую таблицу базы данных.");
+        TABLE_MODEL = new QSqlTableModel(this, DB);
+        QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        QUERY_MODEL = new QSqlQueryModel();
+        QUERY_MODEL->setQuery(query_text);
+        ui->tableView->setModel(QUERY_MODEL);
+        Current_Table_Number = 1;
+    }
+
     qDebug("Переход на окно вставки данных");
     // Передача показаний о БД
     Dialog_SQL_Insert().get_DB_connection_from_MainWindow(DB);
@@ -724,7 +736,9 @@ int SQL_Window_Main::take_list_of_Tables(int Current_table_number_for_insert)
     //List_of_Tables = BD_Tables_List_Asked;
     //qDebug() << "List of tables = " << List_of_Tables;
     //return List_of_Tables;
-    Current_table_number_for_insert = Current_Table_Number;
+    //Current_table_number_for_insert = Current_Table_Number;
+    // Пришлось ставить -1, так как иначе будет ошибка утечки памяти и программа крашнется
+    Current_table_number_for_insert = Current_Table_Number - 1;
     qDebug() << Current_table_number_for_insert << " - В данный момент в Insert передан индекс таблицы " << BD_Tables_List_Asked[Current_table_number_for_insert];
     return Current_table_number_for_insert;
 }
