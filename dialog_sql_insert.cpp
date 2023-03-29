@@ -10,9 +10,9 @@
 
 // Предел генерирования случайного числа
 //int Colvo_Unic = 100;
-int Colvo_Unic = 10;
+//int Colvo_Unic = 10;
 // Глобальный массив для работы с уникальностью номеров
-int *variants_number = new int[Colvo_Unic];
+//int *variants_number = new int[Colvo_Unic];
 
 // Для работы с присланными таблицами
 // Список таблиц
@@ -24,7 +24,8 @@ QString **Insert_Matrix_Tables_FieldNames;
 short GenType;
 
 // Макрос дял определения размера массива (на всякий случай)
-#define _countof(arr) (sizeof(arr) / sizeof((arr)[0]))
+// Закомменчен, так как похоже, не требуется
+//#define _countof(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 Dialog_SQL_Insert::Dialog_SQL_Insert(QWidget *parent) :
     QDialog(parent),
@@ -88,6 +89,15 @@ Dialog_SQL_Insert::Dialog_SQL_Insert(QWidget *parent) :
     palette->setColor(QPalette::Text,Qt::darkGray);
     ui->lineEdit_tableNow->setPalette(*palette);
 
+    /* Создание QTextEdit для справки - old
+    //QLabel *KnowText = new QLabel();
+    //KnowText->setReadOnly(true);
+    //KnowText->setText("Используйте вкладку \"Вставка данных\" для генерации и вставки данных в выбранную таблицу базы данных. Обратите внимание, что вставка возможна лишь в случае, когда был выбран один из генераторов.                                                                 Введите целевые границы для типов вставляемых данных INT, REAL и BYTEA. Обратите внимание, что обе границы должны быть указаны, и не должны совпадать. Если хотите, чтобы генерируемые значения всегда были равны N, то установите в качестве границ N и N+1 (для типа данных INT) или N и N + 0.0001 (для типа данных REAL).                            В генерируемом типе данных VARCHAR всегда будут исключительно текстовые символы английского алфавита верхних и нижних регистров, а также пробел. Необходимо указать лишь длину генерируемой последовательности.               По умолчанию в запросах вставки значения типа BOOL будут равны TRUE. Вы можете изменить это, установив галочку в поле \"Иcпользовать генерацию\". Тогда будут генерироваться и значение FALSE, и значение TRUE.");
+    //ui->scrollArea->setWidget(KnowText);
+    //ui->scrollArea->setWidgetResizable(true);
+    //ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    */
 }
 
 Dialog_SQL_Insert::~Dialog_SQL_Insert()
@@ -122,6 +132,8 @@ int Insert_Table_Index;
 int Insert_Fields_Number = 0, Insert_int_left = 0, Insert_int_right = 0, Insert_varchar_lenght, Insert_byteA_left, Insert_byteA_right, Insert_use_boolean;
 double Insert_real_left, Insert_real_right;
 
+
+/* OLD Student_Table_Insert
 void Dialog_SQL_Insert::on_lineEdit_editingFinished()
 {
     // Построение массива на количество уникальных вариантов
@@ -249,7 +261,7 @@ void Dialog_SQL_Insert::on_lineEdit_4_editingFinished()
     }
 
     // Old_realization
-    /*
+
     //std::mt19937_64 engine;
     //std::random_device device;
     //engine.seed(device());
@@ -276,20 +288,21 @@ void Dialog_SQL_Insert::on_lineEdit_4_editingFinished()
         qDebug() << "Номер случайного варианта - " << variant;
 
     }
-    */
+
 }
+*/
 
 
 void Dialog_SQL_Insert::on_pushButton_clicked()
 {
     /*
      * Insert INTO public."TestTable_1" VALUES (34523, 54434, 'Hello', TRUE);
-     * /
+     *
     // Тесты
     //int test_int = 0;
     if (Insert_Fields_Number > 0)
     {
-        /*
+
         //int br = Insert_Fields_Number;
         //int[br] test_int;
         //for(int i = 0; i < Insert_Fields_Number; ++i)
@@ -356,10 +369,12 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
     //if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][R] == "int")
     //{
     */
-        if ((Insert_int_left != Insert_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != "") && (Insert_int_left < Insert_int_right))
+        if (int_use == 'y')
         {
-            //int *test_int_mass = new int[Insert_Fields_Number];
-            /* old Testes
+            if ((Insert_int_left != Insert_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != "") && (Insert_int_left < Insert_int_right))
+            {
+                //int *test_int_mass = new int[Insert_Fields_Number];
+                /* old Testes
             //for (int i = 0; i < Insert_Fields_Number; ++i)
             //{
                 //test_int = i;
@@ -372,25 +387,25 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
             //    qDebug() << "Полученное значение = " << test_int_mass[i];
             //}
             */
-            if(GenType == 1)
-            {
-                //Insert_int_mass = VihrMersenna_Gen_Int(Insert_int_mass, Insert_Fields_Number, Insert_int_left, Insert_int_right);
-                Insert_int_mass = VihrMersenna_Gen_Int(Insert_int_mass, (Insert_Fields_Number * k_int), Insert_int_left, Insert_int_right);
-            }
-            else if (GenType == 2)
-            {
-                //Insert_int_mass = MacLarenMarsalii_Gen_Int(Insert_int_mass, Insert_Fields_Number, Insert_int_left, Insert_int_right);
-                Insert_int_mass = MacLarenMarsalii_Gen_Int(Insert_int_mass, Insert_Fields_Number * k_int, Insert_int_left, Insert_int_right);
-            }
-            else
-            {
-                QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
-            }
-            qDebug() << "Полученный массив rand int - " << Insert_int_mass;
-            for (int i = 0; i < (Insert_Fields_Number * k_int); ++i)
-            {
-                qDebug() << "Полученный элемент INTEGER " << i << " равен = " << Insert_int_mass[i];
-                /*
+                if(GenType == 1)
+                {
+                    //Insert_int_mass = VihrMersenna_Gen_Int(Insert_int_mass, Insert_Fields_Number, Insert_int_left, Insert_int_right);
+                    Insert_int_mass = VihrMersenna_Gen_Int(Insert_int_mass, (Insert_Fields_Number * k_int), Insert_int_left, Insert_int_right);
+                }
+                else if (GenType == 2)
+                {
+                    //Insert_int_mass = MacLarenMarsalii_Gen_Int(Insert_int_mass, Insert_Fields_Number, Insert_int_left, Insert_int_right);
+                    Insert_int_mass = MacLarenMarsalii_Gen_Int(Insert_int_mass, Insert_Fields_Number * k_int, Insert_int_left, Insert_int_right);
+                }
+                else
+                {
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                }
+                qDebug() << "Полученный массив rand int - " << Insert_int_mass;
+                for (int i = 0; i < (Insert_Fields_Number * k_int); ++i)
+                {
+                    qDebug() << "Полученный элемент INTEGER " << i << " равен = " << Insert_int_mass[i];
+                    /*
             // Test
             //char test_s;
             //test_int_mass[i] = 122;
@@ -402,8 +417,8 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
             //    qDebug() << "Сдвиг столбца";
             //}
             */
-            }
-            /* Type Real test
+                }
+                /* Type Real test
                     double* test_real_mass = new double[22];
                     //test_real_mass = VihrMersenna_Gen_Real(test_real_mass, 5, 4.7, 11.8);
                     //test_real_mass = MacLarenMarsalii_Gen_Real(test_real_mass, 5, 52.7, 64.8);
@@ -413,7 +428,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                     delete[] test_real_mass;
                     */
 
-            /*
+                /*
             // Type char test
             //QString* test_QString_mass = new QString[5];
             //test_QString_mass = VihrMersenna_Gen_Char(test_QString_mass, 5, 8, 0, 125);
@@ -425,11 +440,12 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
             //delete[] Insert_int_mass;
             */
 
-        }
-        else
-        {
-            QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности INT!\n Пожалуйста, переопределите!");
-            return;
+            }
+            else
+            {
+                QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности INT!\n Пожалуйста, переопределите!");
+                return;
+            }
         }
 
         /*
@@ -443,59 +459,65 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         */
 
         // Заполнение генератора Real
-        if ((Insert_real_left != Insert_real_right) && (ui->lineEdit_real_left->text() != "") && (ui->lineEdit_real_right->text() != "") && (Insert_real_left < Insert_real_right))
+        if (real_use == 'y')
         {
-            if(GenType == 1)
+            if ((Insert_real_left != Insert_real_right) && (ui->lineEdit_real_left->text() != "") && (ui->lineEdit_real_right->text() != "") && (Insert_real_left < Insert_real_right))
             {
-                Insert_real_mass = VihrMersenna_Gen_Real(Insert_real_mass, (Insert_Fields_Number * k_real), Insert_real_left, Insert_real_right);
-            }
-            else if (GenType == 2)
-            {
-                Insert_real_mass = MacLarenMarsalii_Gen_Real(Insert_real_mass, (Insert_Fields_Number * k_real), Insert_real_left, Insert_real_right);
+                if(GenType == 1)
+                {
+                    Insert_real_mass = VihrMersenna_Gen_Real(Insert_real_mass, (Insert_Fields_Number * k_real), Insert_real_left, Insert_real_right);
+                }
+                else if (GenType == 2)
+                {
+                    Insert_real_mass = MacLarenMarsalii_Gen_Real(Insert_real_mass, (Insert_Fields_Number * k_real), Insert_real_left, Insert_real_right);
+                }
+                else
+                {
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                }
+                qDebug() << "Полученный массив rand real - " << Insert_int_mass;
+                for (int i = 0; i < (Insert_Fields_Number * k_real); ++i)
+                {
+                    qDebug() << "Полученный REAL элемент " << i << " равен = " << Insert_real_mass[i];
+                }
+
             }
             else
             {
-                QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности REAL!\n Пожалуйста, переопределите!");
+                return;
             }
-            qDebug() << "Полученный массив rand real - " << Insert_int_mass;
-            for (int i = 0; i < (Insert_Fields_Number * k_real); ++i)
-            {
-                qDebug() << "Полученный VARCHAR элемент " << i << " равен = " << Insert_real_mass[i];
-            }
-
-        }
-        else
-        {
-            QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности REAL!\n Пожалуйста, переопределите!");
-            return;
         }
 
-        // Заполнение генератора Varchar
-        //if ((Insert_int_left != Insert_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != ""))
-        if(Insert_varchar_lenght != 0)
+        if (char_use == 'y')
         {
-            if(GenType == 1)
-            {
-                Insert_varchar_mass = VihrMersenna_Gen_Char(Insert_varchar_mass, (Insert_Fields_Number * k_varchar), Insert_varchar_lenght, 0, 125);
-            }
-            else if (GenType == 2)
-            {
-                Insert_varchar_mass = MacLarenMarsalii_Gen_Char(Insert_varchar_mass, (Insert_Fields_Number * k_varchar), Insert_varchar_lenght, 0, 125);
-            }
-            else
-            {
-                QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
-            }
-            qDebug() << "Полученный массив rand varchar - " << Insert_varchar_mass;
-            for (int i = 0; i < (Insert_Fields_Number * k_varchar); ++i)
-            {
-                qDebug() << "Полученный элемент VARCHAR " << i << " равен = " << Insert_varchar_mass[i];
-            }
-        }
-        else
-        {
-            QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности VARCHAR!\n Пожалуйста, переопределите!");
-            return;
+            // Заполнение генератора Varchar
+                    //if ((Insert_int_left != Insert_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != ""))
+                    if(Insert_varchar_lenght != 0)
+                    {
+                        if(GenType == 1)
+                        {
+                            Insert_varchar_mass = VihrMersenna_Gen_Char(Insert_varchar_mass, (Insert_Fields_Number * k_varchar), Insert_varchar_lenght, 0, 125);
+                        }
+                        else if (GenType == 2)
+                        {
+                            Insert_varchar_mass = MacLarenMarsalii_Gen_Char(Insert_varchar_mass, (Insert_Fields_Number * k_varchar), Insert_varchar_lenght, 0, 125);
+                        }
+                        else
+                        {
+                            QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                        }
+                        qDebug() << "Полученный массив rand varchar - " << Insert_varchar_mass;
+                        for (int i = 0; i < (Insert_Fields_Number * k_varchar); ++i)
+                        {
+                            qDebug() << "Полученный элемент VARCHAR " << i << " равен = " << Insert_varchar_mass[i];
+                        }
+                    }
+                    else
+                    {
+                        QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности VARCHAR!\n Пожалуйста, переопределите!");
+                        return;
+                    }
         }
 
         if (bool_use == 'y')
@@ -538,6 +560,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                 }
             }
         }
+        /*
         //else
         //{
         //    QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности VARCHAR!\n Пожалуйста, переопределите!");
@@ -551,7 +574,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
     //    QMessageBox::critical(this, "ERROR", "Введено неккоректное количество новых строк!\n Пожалуйста, введите число от 1 до 10000.");
     //}
 // end of old
-
+*/
     // Вставка значений в таблицу через Insert
     // Testes
     //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" (Column_Int_1, Column_Int_2, Column_Text, Column_Bool) VALUES ('0'::integer, '0'::integer, 'test_insert'::text, 'TRUE'::boolean)";
@@ -577,7 +600,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         query_insert_text.append('"');
         query_insert_text = query_insert_text + " VALUES (";
 
-        // Создание дполнительных переменных для доп.циклов
+        // Создание дополнительных переменных для доп.циклов
         int start_index_int = V * k_int;
         //int end_index_int = start_index_int + k_int;
         int start_index_varchar = V * k_varchar;
@@ -725,17 +748,20 @@ void Dialog_SQL_Insert::on_tabWidget_Students_tabBarClicked(int index)
 {
     if(index == 0)
     {
-        Table_Index = 0;
-        qDebug() << "Вставка в таблицу Students " << Table_Index;
+        //Table_Index = 0;
+        //qDebug() << "Вставка в таблицу Students " << Table_Index;
+        qDebug() << "Окно формы генерации";
     }
     else if (index == 1)
     {
-        Table_Index = 1;
-        qDebug() << "Вставка в таблицу Tasks " << Table_Index;
+        //Table_Index = 1;
+        //qDebug() << "Вставка в таблицу Tasks " << Table_Index;
+        qDebug() << "Окно справки по форме Insert";
     }
 }
 
 
+/* OLD Task_Insert_Functions
 void Dialog_SQL_Insert::on_idTask_editingFinished()
 {
     // Построение массива на количество уникальных вариантов
@@ -846,53 +872,24 @@ void Dialog_SQL_Insert::on_taskVariant_editingFinished()
             }
         }
 
-        /*
+
         //else
         //{
         //    variant = QString::number(rand_variant_task);
         //    t = 'Y';
         //}
-        */
 
-        /*
-        //if (Table_Index == 1)
-        //{\
-        */
-        /*
-        QUERY_MODEL->setQuery("SELECT * FROM public.\"Students\"");
 
-        //int k = QUERY_MODEL->rowCount();
-        //QSqlTableModel SQL_Table_Model;
-        //SQL_Table_Model.setTable("public.\"Tasks\"");
-        //SQL_Table_Model.select();
-        */
-        /*
-        //for (int i = 0; i < QUERY_MODEL->rowCount(); ++i)
-        //for (int i = 0; i < SQL_Table_Model.rowCount(); ++i)
-        //{
-        //        qDebug() << "Номер текущей записи - " << i;
-        //        variant = QString::number(i);
-        // Создать Query_model_2, вызывать на проверку условия, сколько раз
-                // был уже использован данный номер варианта - через проверку одномерного массива
-                // Если меньше 3 - ставить его как номер варианта
-                // Иначе - создавать другой номер
-                */
-        /*
-               //int ID = SQL_Table_Model.record(i).value("ID").toInt();
-               //QString DATA = SQL_Table_Model.record(i).value("DATA").toString();
-               //qDebug() << ID << DATA;
-               */
-        //}
 
-        /*
-        //QUERY_MODEL->setQuery("SELECT * FROM public.\"Students\"");
-        //int i = QUERY_MODEL->rowCount() + 1;
-        //qDebug() << "Текущее значение количества записей - " << i;
-        */
+
+//qDebug() << "Текущее значение количества записей - " << i;
+
         qDebug() << "Текущее значение варианта - " << task_variant;
         //}
     }
 }
+
+*/
 
 
 // Новая функция для получения данных о таблицах
@@ -1066,7 +1063,7 @@ void Dialog_SQL_Insert::on_lineEdit_kolvo_new_strok_editingFinished()
     vrem = ui->lineEdit_kolvo_new_strok->text().toInt();
     if ((vrem < 1) || (vrem > 10000))
     {
-        QMessageBox::critical(this, "ERROR", "Введено неккоректное количество новых строк!\n Пожалуйста, введите число от 1 до 10000.");
+        QMessageBox::critical(this, "ERROR", "Введено неккоректное количество новых строк!\n Пожалуйста, введите число от 1 до 300 000.");
         Insert_Fields_Number = 0;
         ui->lineEdit_kolvo_new_strok->clear();
     }

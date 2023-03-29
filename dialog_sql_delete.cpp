@@ -12,7 +12,9 @@ Dialog_SQL_Delete::Dialog_SQL_Delete(QWidget *parent) :
     QUERY_MODEL = new QSqlQueryModel();
     QUERY_MODEL->setQuery(query_text);
 }
-
+/* Команда для удаления PostgreSQL
+ * DELETE FROM public."TestTable_1" WHERE "Column_Int_1" IN (14070);
+*/
 Dialog_SQL_Delete::~Dialog_SQL_Delete()
 {
     delete ui;

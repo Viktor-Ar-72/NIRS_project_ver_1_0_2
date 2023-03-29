@@ -48,13 +48,13 @@ signals:
 private slots:
     //void on_comboBox_activated(int index);
 
-    void on_lineEdit_editingFinished();
+    //void on_lineEdit_editingFinished();
 
-    void on_lineEdit_2_editingFinished();
+    //void on_lineEdit_2_editingFinished();
 
-    void on_lineEdit_3_editingFinished();
+    //void on_lineEdit_3_editingFinished();
 
-    void on_lineEdit_4_editingFinished();
+    //void on_lineEdit_4_editingFinished();
 
     void on_pushButton_clicked();
 
@@ -62,13 +62,13 @@ private slots:
 
     void on_tabWidget_Students_tabBarClicked(int index);
 
-    void on_idTask_editingFinished();
+    //void on_idTask_editingFinished();
 
-    void on_taskComplication_editingFinished();
+    //void on_taskComplication_editingFinished();
 
-    void on_taskText_editingFinished();
+    //void on_taskText_editingFinished();
 
-    void on_taskVariant_editingFinished();
+   // void on_taskVariant_editingFinished();
 
     void on_comboBox_algoritms_activated(int index);
 

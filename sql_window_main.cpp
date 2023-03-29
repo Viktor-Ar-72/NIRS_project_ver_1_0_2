@@ -329,7 +329,15 @@ void SQL_Window_Main::on_comboBox_activated(int index)
         QString query_text;
         //Не работает query_text = "SHOW TABLES";
         // Вывод имён баз данных текущего сервера query_text = "SELECT datname FROM pg_database;";
-        query_text = "SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');";
+
+        // Рабочий, выводит имена таблиц
+        //query_text = "SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');";
+
+        // Тест на вывод более подробной информации о таблицах
+        //query_text = "SELECT relname, relcrdate FROM pg_class WHERE relkind = 'r' AND relname NOT LIKE 'pg_%' AND relname NOT LIKE 'sql_%' ORDER BY relname;";
+        query_text = "SELECT relid, relname AS Table_name, schemaname AS Schema_type, seq_tup_read AS Read_count, n_tup_ins AS Insert_count, n_tup_upd AS Update_count, n_tup_del AS Delete_count, n_live_tup, idx_scan, idx_tup_fetch FROM pg_stat_user_tables ORDER BY Table_name";
+
+        qDebug() << query_text;
         QUERY_MODEL = new QSqlQueryModel();
         QUERY_MODEL->setQuery(query_text);
         ui->tableView->setModel(QUERY_MODEL);
