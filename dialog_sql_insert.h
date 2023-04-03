@@ -13,6 +13,8 @@
 
 // Для генераторов
 #include <random>
+// Для строк
+#include <QStringBuilder>
 namespace Ui {
 class Dialog_SQL_Insert;
 }
@@ -30,7 +32,7 @@ public:
     void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data);
     // Функции реализации генераторов
     //int VihrMersenna_Gen(int gen_VM_left_edge, int gen_VM_right_edge, std::mt19937_64 Gen_engine);
-    // Int
+    // Int + Bool
     int* VihrMersenna_Gen_Int(int* massiv_gen_numbers, int rasmer, int gen_VM_left_edge, int gen_VM_right_edge);
     int* MacLarenMarsalii_Gen_Int(int* massiv_gen_numbers, int rasmer, int gen_MM_left_edge, int gen_MM_right_edge);
     // Real
@@ -39,6 +41,9 @@ public:
     // Varchar
     QString* VihrMersenna_Gen_Char(QString* massiv_gen_numbers, int rasmer, int length, int gen_VM_left_edge, int gen_VM_right_edge);
     QString* MacLarenMarsalii_Gen_Char(QString* massiv_gen_numbers, int rasmer, int length,  int gen_MM_left_edge, int gen_MM_right_edge);
+    // ByteA
+    QString* VihrMersenna_Gen_ByteA(QString* massiv_gen_numbers, int rasmer, int length, int gen_VM_left_edge, int gen_VM_right_edge);
+    QString* MacLarenMarsalii_Gen_ByteA(QString* massiv_gen_numbers, int rasmer, int length,  int gen_MM_left_edge, int gen_MM_right_edge);
 
 
 signals:
@@ -84,9 +89,13 @@ private slots:
 
     void on_lineEdit_real_right_editingFinished();
 
+    /*
     void on_lineEdit_bytea_left_editingFinished();
 
     void on_lineEdit_bytea_right_editingFinished();
+    */
+
+    void on_lineEdit_bytea_lenght_editingFinished();
 
     void on_checkBox_useBoolGen_clicked();
 

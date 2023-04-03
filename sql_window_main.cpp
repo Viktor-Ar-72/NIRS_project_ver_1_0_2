@@ -257,6 +257,8 @@ void SQL_Window_Main::on_comboBox_activated(int index)
                     // INT == int == "2"
                     // VARCHAR == TEXT == QString == "10"
                     // BOOLEAN == bool == "1"
+                    // REAL == double == "6"
+                    // BYTEA == ByteA == ("\f"== "12")
                     switch (temp)
                     {
                     case (1):
@@ -271,6 +273,14 @@ void SQL_Window_Main::on_comboBox_activated(int index)
                     case (10):
                         //Matrix_Tables_FieldTypes[i][j] = "QString";
                         Temp_Matrix_Tables_FieldTypes[i][j] = "QString";
+                        Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                        break;
+                    case (6):
+                        Temp_Matrix_Tables_FieldTypes[i][j] = "double";
+                        Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                        break;
+                    case (12):
+                        Temp_Matrix_Tables_FieldTypes[i][j] = "ByteA";
                         Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
                         break;
                     default:

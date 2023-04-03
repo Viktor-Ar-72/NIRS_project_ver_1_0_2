@@ -51,7 +51,7 @@
     </font>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="Insert_rand_all">
     <attribute name="title">
@@ -385,30 +385,15 @@
       </font>
      </property>
      <property name="text">
-      <string>Тип данных BYTEA: пределы генерации от          до</string>
+      <string>Тип данных BYTEA/BLOB: длина последовательности</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_bytea_left">
+    <widget class="QLineEdit" name="lineEdit_bytea_lenght">
      <property name="geometry">
       <rect>
-       <x>310</x>
+       <x>390</x>
        <y>200</y>
-       <width>41</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEdit_bytea_right">
-     <property name="geometry">
-      <rect>
-       <x>380</x>
-       <y>200</y>
-       <width>61</width>
+       <width>51</width>
        <height>22</height>
       </rect>
      </property>
@@ -492,12 +477,14 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;ВНИМАНИЕ!&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Вставка не будет возможна, пока:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1) Не будет указан вид генератора; &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2) Не будет введено количество вставляемых строк. Число должно быть в пределах от 0 до 300000.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2) Не будет введено количество вставляемых строк. Число должно быть в пределах от 0 до 300000;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3) Не будут определены параметры для генерации всех типов данных, хранящихся в выбранной таблице базы данных.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Границы для генераторов данных INT, REAL и BYTEA должны отличаться минимум на 1 (для типа INT) или на 0.001 (для типа REAL).&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Границы для генераторов данных INT и REAL должны отличаться минимум на 1 (для типа INT) или на 0.001 (для типа REAL).&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;В типе данных VARCHAR генерируются символы букв английского алфавита (верхний и нижний регистр) и символ &amp;quot;пробел&amp;quot;.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Бинарный тип данных BYTEA использует двухбайтовое представление данных с символами от 0 до F. Для генерации необходимо указать размер последовательности BYTEA.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;По умолчанию все значения BOOL генерируются равным TRUE. Чтобы использовать случайную генерацию булевых значений, поставьте галочку.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;

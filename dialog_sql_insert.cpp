@@ -129,7 +129,7 @@ int Insert_Transfer_DB_Port;
 
 // Глобальные переменные для формы вставки
 int Insert_Table_Index;
-int Insert_Fields_Number = 0, Insert_int_left = 0, Insert_int_right = 0, Insert_varchar_lenght, Insert_byteA_left, Insert_byteA_right, Insert_use_boolean;
+int Insert_Fields_Number = 0, Insert_int_left = 0, Insert_int_right = 0, Insert_varchar_lenght, Insert_byteA_lenght, Insert_use_boolean;
 double Insert_real_left, Insert_real_right;
 
 
@@ -297,6 +297,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
 {
     /*
      * Insert INTO public."TestTable_1" VALUES (34523, 54434, 'Hello', TRUE);
+     * INSERT INTO public."TestTable_2" VALUES ('Text_1', 'Text_2', '\xABCDEF', 1.78);
      *
     // Тесты
     //int test_int = 0;
@@ -311,10 +312,10 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         //}
         */
 
-    // Old
+    /* Old
     //if ((Insert_Fields_Number > 0) && (Insert_Fields_Number < 10001))
     //{
-    // end of Old
+    end of old */
         // Создаём N-ое количество массивов, для каждого типа столбца текущей таблицы
         // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
         QString query_text;
@@ -340,7 +341,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                 k_varchar += 1;
                 char_use = 'y';
             }
-            if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][K] == "Double")
+            if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][K] == "double")
             {
                 k_real += 1;
                 real_use = 'y';
@@ -361,6 +362,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         QString* Insert_varchar_mass = new QString[(Insert_Fields_Number * k_varchar)];
         double* Insert_real_mass = new double[(Insert_Fields_Number * k_real)];
         bool* Insert_bool_mass = new bool[(Insert_Fields_Number * k_boolean)];
+        QString* Insert_bytea_mass = new QString[(Insert_Fields_Number * k_bytea)];
 
         /*
     //for (int R = 0; R < Record_Test.count(); ++R)
@@ -475,7 +477,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                 {
                     QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
                 }
-                qDebug() << "Полученный массив rand real - " << Insert_int_mass;
+                qDebug() << "Полученный массив rand real - " << Insert_real_mass;
                 for (int i = 0; i < (Insert_Fields_Number * k_real); ++i)
                 {
                     qDebug() << "Полученный REAL элемент " << i << " равен = " << Insert_real_mass[i];
@@ -560,6 +562,39 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                 }
             }
         }
+        if (bytea_use == 'y')
+        {
+            //qDebug() << "Будет использоватьмся массив byteA";
+            if(Insert_byteA_lenght != 0)
+            {
+                if(GenType == 1)
+                {
+                    Insert_bytea_mass = VihrMersenna_Gen_ByteA(Insert_bytea_mass, (Insert_Fields_Number * k_bytea), Insert_byteA_lenght, 0, 90);
+                }
+                else if (GenType == 2)
+                {
+                    Insert_bytea_mass = MacLarenMarsalii_Gen_ByteA(Insert_bytea_mass, (Insert_Fields_Number * k_bytea), Insert_byteA_lenght, 0, 90);
+                }
+                else
+                {
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                }
+                qDebug() << "Полученный массив rand bytea - " << Insert_bytea_mass;
+                for (int i = 0; i < (Insert_Fields_Number * k_bytea); ++i)
+                {
+                    qDebug() << "Полученный элемент BYTEA " << i << " равен = " << Insert_bytea_mass[i];
+                }
+            }
+            else
+            {
+                QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности BYTEA!\n Пожалуйста, переопределите!");
+                return;
+            }
+        }
+
+
+
+
         /*
         //else
         //{
@@ -593,7 +628,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
     {
         //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (";
         //query_insert_text = "";
-        // Создание шаблона запроса. И снова спасибо GPT-4 :)
+        // Создание шаблона запроса. И снова спасибо ПЗЕ4:)
         query_insert_text = "INSERT INTO public.";
         query_insert_text += '"';
         query_insert_text = query_insert_text + Insert_BD_Tables_List_Asked[Insert_Table_Index];
@@ -606,6 +641,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         int start_index_varchar = V * k_varchar;
         int start_index_real = V * k_real;
         int start_index_bool = V * k_boolean;
+        int start_index_bytea = V * k_bytea;
 
         for (int A = 0; A < Insert_Record.count(); ++A)
         {
@@ -618,7 +654,6 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                 query_insert_text = query_insert_text + QString::number(Insert_int_mass[start_index_int]) + ", ";
                 ++start_index_int;
             }
-
             else if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][A] == "QString")
             {
                 //query_insert_text = query_insert_text + Insert_varchar_mass[Insert_Fields_Number] + ", ";
@@ -626,6 +661,17 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                 //query_insert_text = query_insert_text + "'" + Insert_varchar_mass[V] + "', ";
                 query_insert_text = query_insert_text + "'" + Insert_varchar_mass[start_index_varchar] + "', ";
                 ++start_index_varchar;
+            }
+            else if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][A] == "double")
+            {
+                // Сохранение точности до определённого знака после запятой
+                query_insert_text = query_insert_text + QString::number(Insert_real_mass[start_index_real], 'g', 7) + ", ";
+                ++start_index_real;
+            }
+            else if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][A] == "ByteA")
+            {
+                query_insert_text = query_insert_text + "'" + Insert_bytea_mass[start_index_bytea] + "', ";
+                ++start_index_bytea;
             }
             else if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][A] == "bool")
             {
@@ -646,15 +692,16 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                 //query_insert_text = query_insert_text;
             }
         }
-        // Убираем последнюю запятую (спасибо GPT-4 :) )
+        // Убираем последнюю запятую (спасибо ПЗЕ4 :) )
         //query_insert_text.remove((query_insert_text.length() - 1), 3);
         //query_insert_text = query_insert_text + ");";
         int position = query_insert_text.lastIndexOf(QChar(','));
         query_insert_text = query_insert_text.left(position);
         query_insert_text = query_insert_text.append(");");
         qDebug() << "Запрос на вставку" << V << query_insert_text;
-        QUERY_MODEL->setQuery(query_insert_text);
-        qDebug() << "Запрос на вставку" << V << "выполнен.";
+        // Если временно закомменчено - значит, происходит тест на вставку данных
+        //QUERY_MODEL->setQuery(query_insert_text);
+        //qDebug() << "Запрос на вставку" << V << "выполнен.";
     }
 
     /* Возможный вариант реализации просмотра нескольких значений массива на одну итерацию Insert от GPT-4
@@ -694,6 +741,12 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
     QUERY_MODEL->setQuery(query_insert_text);
     // Закрытие окна вставки данных
     qDebug() << "Окно Insert закрыто вместе с сохранением данных в таблицу";
+    // Очистка массивов
+    delete [] Insert_int_mass;
+    delete [] Insert_varchar_mass;
+    delete [] Insert_real_mass;
+    delete [] Insert_bytea_mass;
+    delete [] Insert_bool_mass;
     // Возврат к основному окну
     this->close();
     emit InWindow();
@@ -1061,7 +1114,7 @@ void Dialog_SQL_Insert::on_lineEdit_kolvo_new_strok_editingFinished()
 {
     int vrem;
     vrem = ui->lineEdit_kolvo_new_strok->text().toInt();
-    if ((vrem < 1) || (vrem > 10000))
+    if ((vrem < 1) || (vrem > 300000))
     {
         QMessageBox::critical(this, "ERROR", "Введено неккоректное количество новых строк!\n Пожалуйста, введите число от 1 до 300 000.");
         Insert_Fields_Number = 0;
@@ -1109,19 +1162,20 @@ void Dialog_SQL_Insert::on_lineEdit_real_right_editingFinished()
     qDebug() << "Правая граница типа Real для генератора - " << Insert_real_right;
 }
 
-
+/* Old ByteA, removed
 void Dialog_SQL_Insert::on_lineEdit_bytea_left_editingFinished()
 {
     Insert_byteA_left = ui->lineEdit_bytea_left->text().toInt();
     qDebug() << "Левая граница типа ByteA для генератора - " << Insert_byteA_left;
 
 }
+*/
 
 
-void Dialog_SQL_Insert::on_lineEdit_bytea_right_editingFinished()
+void Dialog_SQL_Insert::on_lineEdit_bytea_lenght_editingFinished()
 {
-    Insert_byteA_right = ui->lineEdit_bytea_right->text().toInt();
-    qDebug() << "Правая граница типа ByteA для генератора - " << Insert_byteA_right;
+    Insert_byteA_lenght = ui->lineEdit_bytea_lenght->text().toInt();
+    qDebug() << "Полученная длина последовательности Bytea - " << Insert_byteA_lenght;
 
 }
 
@@ -1187,10 +1241,16 @@ double* Dialog_SQL_Insert::VihrMersenna_Gen_Real(double *getted_rand_mass, int r
     std::mt19937_64 engine;
     std::random_device device;
     engine.seed(device());;
+    // Расчёт длины диапазона
+    double range = gen_VM_right_edge - gen_VM_left_edge;
     for (int i = 0; i < rasmer; ++i)
     {
         //getted_rand_mass[i] = gen_VM_left_edge + double(engine()) % (gen_VM_right_edge + 1 - gen_VM_left_edge);
-        getted_rand_mass[i] = gen_VM_left_edge + engine() * (gen_VM_right_edge + 1 - gen_VM_left_edge);
+        // Работающий, но с огрехами
+        //getted_rand_mass[i] = gen_VM_left_edge + engine() * (gen_VM_right_edge + 1 - gen_VM_left_edge);
+        // Вариант от ПЗЕ4, работает хорошо))
+        double rand_num = double(engine()) / engine.max(); // Случайное число от 0 до 1
+        getted_rand_mass[i] = gen_VM_left_edge + range * rand_num;
     }
     return getted_rand_mass;
     // Вроде как должно сменить зерно генерации, чтобы не было повторяющихся значений
@@ -1199,6 +1259,7 @@ double* Dialog_SQL_Insert::VihrMersenna_Gen_Real(double *getted_rand_mass, int r
 
 double* Dialog_SQL_Insert::MacLarenMarsalii_Gen_Real(double *getted_rand_mass, int rasmer, double gen_MM_left_edge, double gen_MM_right_edge)
 {
+    /*
     // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
@@ -1227,6 +1288,50 @@ double* Dialog_SQL_Insert::MacLarenMarsalii_Gen_Real(double *getted_rand_mass, i
     return getted_rand_mass;
     delete[] matrix_3;
     engine.seed();
+    */
+    // Вариант от ПЗЕ4
+    // Инициализация привязки устройства
+    std::ranlux24 engine;
+    std::random_device device;
+    engine.seed(device());
+
+    // Генерация первых 2-х случайных чисел
+    double u1 = engine() / double(engine.max());
+    double u2 = engine() / double(engine.max());
+
+    for (int i = 0; i < rasmer; ++i)
+    {
+        double u1_prev = u1;
+        u1 = u2;
+        u2 = engine() / double(engine.max());
+
+        // Преобразование Box-Muller
+        double z1 = sqrt(-2.0 * log(u1)) * cos(2.0 * M_PI * u2);
+        double z2 = sqrt(-2.0 * log(u1)) * sin(2.0 * M_PI * u2);
+
+        // Масштабирование и сдвиг
+        double rand_num = gen_MM_left_edge + ((z1 + z2) / 2.0) * (gen_MM_right_edge - gen_MM_left_edge);
+
+        // Проверка, входит ли число в заданный диапазон
+        if (rand_num < gen_MM_left_edge || rand_num > gen_MM_right_edge) {
+            // Перегенерирование числа, пока оно не попадет в заданный диапазон
+            do {
+                u1_prev = u1;
+                u1 = u2;
+                u2 = engine() / double(engine.max());
+                z1 = sqrt(-2.0 * log(u1)) * cos(2.0 * M_PI * u2);
+                z2 = sqrt(-2.0 * log(u1)) * sin(2.0 * M_PI * u2);
+                rand_num = gen_MM_left_edge + ((z1 + z2) / 2.0) * (gen_MM_right_edge - gen_MM_left_edge);
+            } while (rand_num < gen_MM_left_edge || rand_num > gen_MM_right_edge);
+        }
+
+        // Сохранение в массив
+        getted_rand_mass[i] = rand_num;
+    }
+
+    // Очистка ресурсов и возврат массива
+    engine.seed();
+    return getted_rand_mass;
 }
 
 QString* Dialog_SQL_Insert::VihrMersenna_Gen_Char(QString *massiv_gen_numbers, int rasmer, int length, int gen_VM_left_edge, int gen_VM_right_edge)
@@ -1260,9 +1365,9 @@ QString* Dialog_SQL_Insert::VihrMersenna_Gen_Char(QString *massiv_gen_numbers, i
         massiv_gen_numbers[i] = s;
         //massiv_gen_numbers[i] = gen_VM_left_edge + engine() % (gen_VM_right_edge + 1 - gen_VM_left_edge);
     }
-    return massiv_gen_numbers;
     // Вроде как должно сменить зерно генерации, чтобы не было повторяющихся значений
     engine.seed();
+    return massiv_gen_numbers;
 }
 
 QString* Dialog_SQL_Insert::MacLarenMarsalii_Gen_Char(QString *massiv_gen_numbers, int rasmer, int length, int gen_MM_left_edge, int gen_MM_right_edge)
@@ -1321,9 +1426,9 @@ QString* Dialog_SQL_Insert::MacLarenMarsalii_Gen_Char(QString *massiv_gen_number
         }
         massiv_gen_numbers[i] = word;
     }
-    return massiv_gen_numbers;
     delete[] matrix_3;
     engine.seed();
+    return massiv_gen_numbers;
 }
 
 void Dialog_SQL_Insert::on_checkBox_useBoolGen_clicked()
@@ -1340,3 +1445,115 @@ void Dialog_SQL_Insert::on_checkBox_useBoolGen_clicked()
     }
 }
 
+QString* Dialog_SQL_Insert::VihrMersenna_Gen_ByteA(QString *massiv_gen_numbers, int rasmer, int length, int gen_VM_left_edge, int gen_VM_right_edge)
+{
+    // Инициализация зерна генератора для Вихря Мерсенна
+    // Инициализация привязки устройства
+    std::mt19937_64 engine;
+    std::random_device device;
+    engine.seed();
+    int t = 0; bool r = 0; QString s;
+    for (int i = 0; i < rasmer; ++i)
+    {
+        //s = "\\x";
+        //s = QString::fromLatin1("\\x");
+        s = "";
+        for (int j = 0; j < length; ++j)
+        {
+            r = 0;
+            while(r == 0)
+            {
+                t = gen_VM_left_edge + engine() % (gen_VM_right_edge + 1 - gen_VM_left_edge);
+                // Старое условие, не треубется
+                //if ((j == 0) && (t == 48))
+                //{ r = 0;}
+                //else
+                //{
+                    if (((t > 47) && (t < 58)) || ((t > 64) && (t < 71)))
+                    {
+                        s = s + QString(t);
+                        r = 1;
+                    }
+                    else
+                    {
+                        r = 0;
+                    }
+                //}
+            }
+        }
+        massiv_gen_numbers[i] = s;
+        //massiv_gen_numbers[i] = gen_VM_left_edge + engine() % (gen_VM_right_edge + 1 - gen_VM_left_edge);
+    }
+    // Вроде как должно сменить зерно генерации, чтобы не было повторяющихся значений
+    engine.seed();
+    return massiv_gen_numbers;
+}
+
+QString* Dialog_SQL_Insert::MacLarenMarsalii_Gen_ByteA(QString *massiv_gen_numbers, int rasmer, int length, int gen_MM_left_edge, int gen_MM_right_edge)
+{
+    // Инициализация привязки устройства
+    std::ranlux24 engine;
+    std::random_device device;
+    engine.seed(device());
+    // Инициализаций матрицы генератора
+    int *matrix_3 = new int[1000];
+    int init; bool r;
+    for (int i = 0; i < 1000; ++i)
+    {
+        r = 0;
+        while(r == 0)
+        {
+            init = gen_MM_left_edge + engine() % (gen_MM_right_edge + 1 - gen_MM_left_edge);
+            //if ((i == 0) && (init == 48))
+            //{ r = 0;}
+            //else {
+                if (((init > 47) && (init < 58)) || ((init > 64) && (init < 71)))
+                {
+                    matrix_3[i] = init;
+                    r = 1;
+                }
+                else
+                {
+                    r = 0;
+                }
+            //}
+        }
+    }
+    int P_3_1; int P_3_2, P_3_3; QString word;
+    for (int i = 0; i < rasmer; ++i)
+    {
+        //word = "\\x";
+        //word = QString::fromLatin1("\\x");
+        word = "";
+        for (int j = 0; j < length; ++j)
+        {
+
+            r = 0;
+            while (r == 0)
+            {
+                P_3_1 = gen_MM_left_edge + engine() % (gen_MM_right_edge + 1 - gen_MM_left_edge);
+                P_3_2 = gen_MM_left_edge + engine() % (gen_MM_right_edge + 1 - gen_MM_left_edge);
+                if (((P_3_1 > 47) && (P_3_1 < 58)) || ((P_3_1 > 64) && (P_3_1 < 71)))
+                {
+                    P_3_3 = (P_3_1 * P_3_2) % 1000;
+                    //if ((P_3_3 == 48) && (j == 0))
+                    //{r = 0;}
+                    //else
+                    //{
+                        word = word + QString(matrix_3[P_3_3]);
+                        matrix_3[P_3_3] = P_3_1;
+                        r = 1;
+                    //}
+                }
+                else
+                {
+                    r = 0;
+                }
+            }
+        }
+        massiv_gen_numbers[i] = word;
+    }
+    delete[] matrix_3;
+    engine.seed();
+    return massiv_gen_numbers;
+}
