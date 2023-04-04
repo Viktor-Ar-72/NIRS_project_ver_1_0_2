@@ -760,3 +760,50 @@ int SQL_Window_Main::take_list_of_Tables(int Current_table_number_for_insert)
     qDebug() << Current_table_number_for_insert << " - В данный момент в Insert передан индекс таблицы " << BD_Tables_List_Asked[Current_table_number_for_insert];
     return Current_table_number_for_insert;
 }
+
+
+void rpz_code_function()
+{
+
+    QSqlDatabase DatabaseMain = QSqlDatabase::addDatabase("QPSQL", "DatabaseConnect");
+    DatabaseMain.setHostName("127.0.0.1");
+    DatabaseMain.setPort(5432);
+    DatabaseMain.setDatabaseName("Test_Database");
+    DatabaseMain.setUserName("User");
+    DatabaseMain.setPassword("Password");
+    DatabaseMain.open();
+    if (!(DatabaseMain.isOpen()))
+    {
+        qDebug() << DatabaseMain.lastError();
+    }
+
+    QSqlQuery Querry_Main;
+    Querry_Main.exec("SELECT * FROM public.\"TestTable1\"");
+    if (!(Querry_Main.exec()))
+    {
+        qDebug() << Querry_Main.lastError();
+    }
+
+    //QSqlDatabase PostgreSQLDatabase = QSqlDatabase::database();
+    //if (PostgreSQLDatabase.driver()->hasFeature(QSqlDriver::QDoubleValidator()))
+    //{
+    //    qDebug() << "Опция поддерживается";
+    //} else {
+    //    qDebug() << "Опция не поддерживается";
+    //}
+
+    QSqlQuery Querry_New;
+    Querry_New.prepare("INSERT INTO public.\"TestTable1\" (\"ID\", \"TEST_2\") "
+                    "VALUES (:id::smallint, :year::integer) returning \"ID\";");
+    Querry_New.bindValue(":id", '7');
+    Querry_New.bindValue(":data", '2023');
+    Querry_New.exec();
+
+    QSqlQuery Querry_Update;
+    Querry_Update.prepare("UPDATE public.\"TestTable1\" "
+                          "SET \"TEXT\" = :data::text "
+                          "WHERE \"ID\" = 7;");
+    Querry_Update.bindValue(":data", 'Update_Querry_Text');
+    Querry_Update.exec();
+
+}

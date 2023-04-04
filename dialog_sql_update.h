@@ -40,6 +40,9 @@ private slots:
 
     void on_tabWidget_currentChanged(int index);
 
+    void on_tabWidget_Update_currentChanged(int index);
+
+    /*
     void on_lineEdit_student_id_editingFinished();
 
     void on_lineEdit_student_var_editingFinished();
@@ -55,8 +58,8 @@ private slots:
     void on_lineEdit_task_Text_editingFinished();
 
     void on_lineEdit_task_var_editingFinished();
+*/
 
-    void on_tabWidget_Update_currentChanged(int index);
 
 private:
     Ui::dialog_sql_update *ui;

@@ -33,6 +33,7 @@ int Up_Table_Index;
 
 void dialog_sql_update::on_pushButton_OK_clicked()
 {
+    /* OLD_UPDATE
     //qDebug() << "44";
     if (Up_Table_Index == 0)
     {
@@ -49,12 +50,12 @@ void dialog_sql_update::on_pushButton_OK_clicked()
         {
             if(up_full_name == "")
             {
-                /*
+
                 // Old tests
                 //QUERY_MODEL->setQuery("SELECT * FROM public.\"Students\" WHERE student_id = "+up_student_id);
                 //QUERY_MODEL->
                 //up_full_name = QString::number(QUERY_MODEL->rowCount());
-                */
+
                 QUERY_MODEL->setQuery("SELECT * FROM public.\"Students\" WHERE student_id = " + up_student_id);
                 up_full_name = QUERY_MODEL->record(0).value("full_name").toString();
                 qDebug() << "Текущее значение up_full_name = " << up_full_name;
@@ -128,6 +129,7 @@ void dialog_sql_update::on_pushButton_OK_clicked()
             emit UpWindow();
         }
     }
+    */
 }
 
 
@@ -141,6 +143,28 @@ void dialog_sql_update::on_pushButton_Esc_clicked()
 
 
 void dialog_sql_update::on_tabWidget_currentChanged(int index)
+{
+
+    if(index == 0)
+    {
+        // Сообщение - предупреждение пользователю
+        QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные. \n Изменения будут применены сразу.\n Вводите только те данные, которые хотите обновить.");
+        qDebug() << "Страница обновления данных в выбранной таблице";
+        //Up_Table_Index = 0;
+        //qDebug() << "Обновление в таблице Students " << Up_Table_Index;
+    }
+    else if (index == 1)
+    {
+        //Up_Table_Index = 1;
+       // qDebug() << "Обновление в таблице Tasks " << Up_Table_Index;
+        qDebug() << "Окно справки";
+    }
+}
+
+void dialog_sql_update::changeIndex(int i)
+{    i++;    }
+
+void dialog_sql_update::on_tabWidget_Update_currentChanged(int index)
 {
     // Сообщение - предупреждение пользователю
     QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные. \n Изменения будут применены сразу.\n Вводите только те данные, которые хотите обновить.");
@@ -157,10 +181,7 @@ void dialog_sql_update::on_tabWidget_currentChanged(int index)
     }
 }
 
-void dialog_sql_update::changeIndex(int i)
-{    i++;    }
-
-
+/* OLD UPDATE_Students_Tasks
 void dialog_sql_update::on_lineEdit_student_id_editingFinished()
 {
     // Построение массива на количество уникальных вариантов
@@ -183,7 +204,7 @@ void dialog_sql_update::on_lineEdit_student_id_editingFinished()
     }
     qDebug() << "Конец проверки количества уникальных вариантов и записей в них";
 
-    /*
+
     //QSqlQueryModel *model = new QSqlQueryModel(this);
     //model->setQuery("SELECT fieldWithNeedData FROM table", sqlBase); //Выбираем список фамилий из базы
     QUERY_MODEL->setQuery("SELECT student_id FROM public.\"Students\";");
@@ -192,16 +213,9 @@ void dialog_sql_update::on_lineEdit_student_id_editingFinished()
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setCompletionMode(QCompleter::PopupCompletion); //вариант с выпадающим списком.
     lineEdit->setCompleter(completer);
-    */
+
     //QLineEdit *lineEdit = new QLineEdit(on_lineEdit_student_id_editingFinished());
 
-    /*
-     * //заполнение combo
-ui->combobox->addItem(TON_KG);
-
-//условия
-if(ui->combobox->currentText()==TON_KG
-     */
 
     up_student_id = ui->lineEdit_student_id->text();
     if ((up_student_id == "") || (up_student_id == NULL))
@@ -426,20 +440,4 @@ void dialog_sql_update::on_lineEdit_task_var_editingFinished()
     qDebug() << "Текущее значение варианта для задания - " << up_task_variant;
 }
 
-void dialog_sql_update::on_tabWidget_Update_currentChanged(int index)
-{
-    // Сообщение - предупреждение пользователю
-    QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные. \n Изменения будут применены сразу.\n Вводите только те данные, которые хотите обновить.");
-
-    if(index == 0)
-    {
-        Up_Table_Index = 0;
-        qDebug() << "Обновление в таблице Students " << Up_Table_Index;
-    }
-    else if (index == 1)
-    {
-        Up_Table_Index = 1;
-        qDebug() << "Обновление в таблице Tasks " << Up_Table_Index;
-    }
-}
-
+*/

@@ -7,6 +7,7 @@
 #include <QMessageBox>
 // Подключение окна MainWindow для передачи кое-каких параметров
 #include <sql_window_main.h>
+#include <QFile>
 
 // Предел генерирования случайного числа
 //int Colvo_Unic = 100;
@@ -37,7 +38,7 @@ Dialog_SQL_Insert::Dialog_SQL_Insert(QWidget *parent) :
     QUERY_MODEL = new QSqlQueryModel();
     QUERY_MODEL->setQuery(query_text);
 
-    // Настройка списка таблиц
+    // Настройка списка таблиц - old
     /*
     QStringList test_list;
     qDebug() << "Tables list now - " << Insert_BD_Tables_List_Asked;
@@ -47,7 +48,7 @@ Dialog_SQL_Insert::Dialog_SQL_Insert(QWidget *parent) :
     }
     ui->comboBox_table_change->addItems(test_list);
     */
-    /* Создание заглушки
+    /* Создание заглушки - old
     QStringList list_plug;
     for (int j = 0; j < 3; ++j)
     {
@@ -79,7 +80,7 @@ Dialog_SQL_Insert::Dialog_SQL_Insert(QWidget *parent) :
     }
     */
 
-    // Test - инициализация lineEdit_tableNow
+    //  Инициализация lineEdit_tableNow
     ui->lineEdit_tableNow->setText("Тип генератора?");
     //ui->lineEdit_tableNow->setModified(0);
     ui->lineEdit_tableNow->setReadOnly(1);
@@ -298,6 +299,8 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
     /*
      * Insert INTO public."TestTable_1" VALUES (34523, 54434, 'Hello', TRUE);
      * INSERT INTO public."TestTable_2" VALUES ('Text_1', 'Text_2', '\xABCDEF', 1.78);
+     * DELETE FROM public."TestTable_2" WHERE "Column_Text_1" = 'Text_1' AND "Column_Text_2" = 'Text_2' AND "Column_ByteA" = '\xABCDEF' AND "Column_Real" = 1.78;
+     *
      *
     // Тесты
     //int test_int = 0;
@@ -670,8 +673,22 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
             }
             else if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][A] == "ByteA")
             {
-                query_insert_text = query_insert_text + "'" + Insert_bytea_mass[start_index_bytea] + "', ";
+                //query_insert_text = query_insert_text + "'" + R"(\x)" + Insert_bytea_mass[start_index_bytea] + "', ";
+                query_insert_text = query_insert_text + "'";
+                query_insert_text += QString::fromUtf8("\x5C\x78");
+                // int index = query_insert_text.lastIndexOf("\\");
+                // query_insert_text.replace(index, 1, "\x5C\x78");
+                // query_insert_text.remove(0, 1);
+                // query_insert_text.prepend("'");
+                query_insert_text = query_insert_text + Insert_bytea_mass[start_index_bytea] + "', ";
                 ++start_index_bytea;
+                // Test byteA input check
+                QFile file("output_BYTEA_Test.txt");
+                if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                    QTextStream out(&file);
+                    out << query_insert_text; // записываем содержимое строки в файл
+                    file.close();
+                }
             }
             else if(Insert_Matrix_Tables_FieldTypes[Insert_Table_Index][A] == "bool")
             {
@@ -700,8 +717,8 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         query_insert_text = query_insert_text.append(");");
         qDebug() << "Запрос на вставку" << V << query_insert_text;
         // Если временно закомменчено - значит, происходит тест на вставку данных
-        //QUERY_MODEL->setQuery(query_insert_text);
-        //qDebug() << "Запрос на вставку" << V << "выполнен.";
+        QUERY_MODEL->setQuery(query_insert_text);
+        qDebug() << "Запрос на вставку" << V << "выполнен.";
     }
 
     /* Возможный вариант реализации просмотра нескольких значений массива на одну итерацию Insert от GPT-4
