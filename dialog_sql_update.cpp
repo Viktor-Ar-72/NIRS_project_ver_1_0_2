@@ -1,12 +1,14 @@
 #include "dialog_sql_update.h"
 #include "ui_dialog_sql_update.h"
-
+#include <sql_window_main.h>
 #include <QCompleter>
 #include <QSqlRecord>
 
-dialog_sql_update::dialog_sql_update(QWidget *parent) :
+//dialog_sql_update::dialog_sql_update(QWidget *parent) :
+Dialog_SQL_Update::Dialog_SQL_Update(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::dialog_sql_update)
+    //ui(new Ui::dialog_sql_update)
+    ui(new Ui::Dialog_SQL_Update)
 {
     ui->setupUi(this);
 
@@ -16,7 +18,8 @@ dialog_sql_update::dialog_sql_update(QWidget *parent) :
     QUERY_MODEL->setQuery(query_text);
 }
 
-dialog_sql_update::~dialog_sql_update()
+//dialog_sql_update::~dialog_sql_update()
+Dialog_SQL_Update::~Dialog_SQL_Update()
 {
     delete ui;
 }
@@ -26,12 +29,28 @@ int Up_Colvo_Unic = 10;
 // Глобальный массив для работы с уникальностью номеров
 int *up_variants_number = new int[Up_Colvo_Unic];
 
+// Для настройки соединения
+// Для работы с присланными таблицами
+// Список таблиц
+QStringList Update_BD_Tables_List_Asked;
+// Массив с типами полей каждой таблицы по номеру
+QString **Update_Matrix_Tables_FieldTypes;
+QString **Update_Matrix_Tables_FieldNames;
+// Тип генератора
+short Update_GenType;
+
+// Глобальные переменные для работы с подключением к базе данных
+QString Update_Transfer_DB_Adress, Update_Transfer_DB_Name, Update_Transfer_DB_User, Update_Transfer_DB_Password;
+int Update_Transfer_DB_Port;
+// Глобальные переменные для формы вставки
+int Update_Table_Index;
+
 // Глобальные переменные для работы с формами
 QString up_student_id, up_full_name, up_student_group, up_student_variant;
 QString up_task_id, up_task_complication, up_task_text, up_task_variant;
 int Up_Table_Index;
 
-void dialog_sql_update::on_pushButton_OK_clicked()
+void Dialog_SQL_Update::on_pushButton_OK_clicked()
 {
     /* OLD_UPDATE
     //qDebug() << "44";
@@ -133,7 +152,7 @@ void dialog_sql_update::on_pushButton_OK_clicked()
 }
 
 
-void dialog_sql_update::on_pushButton_Esc_clicked()
+void Dialog_SQL_Update::on_pushButton_Esc_clicked()
 {
 
     // Возврат к основному окну
@@ -142,7 +161,7 @@ void dialog_sql_update::on_pushButton_Esc_clicked()
 }
 
 
-void dialog_sql_update::on_tabWidget_currentChanged(int index)
+void Dialog_SQL_Update::on_tabWidget_currentChanged(int index)
 {
 
     if(index == 0)
@@ -161,10 +180,10 @@ void dialog_sql_update::on_tabWidget_currentChanged(int index)
     }
 }
 
-void dialog_sql_update::changeIndex(int i)
+void Dialog_SQL_Update::changeIndex(int i)
 {    i++;    }
 
-void dialog_sql_update::on_tabWidget_Update_currentChanged(int index)
+void Dialog_SQL_Update::on_tabWidget_Update_currentChanged(int index)
 {
     // Сообщение - предупреждение пользователю
     QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные. \n Изменения будут применены сразу.\n Вводите только те данные, которые хотите обновить.");
@@ -180,6 +199,83 @@ void dialog_sql_update::on_tabWidget_Update_currentChanged(int index)
         qDebug() << "Обновление в таблице Tasks " << Up_Table_Index;
     }
 }
+
+// Новая функция для получения данных о таблицах
+void Dialog_SQL_Update::get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types)
+{
+    // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
+    QString query_text;
+    QSqlRecord Record_Test;
+    QSqlQuery Query_Test;
+
+    Update_BD_Tables_List_Asked = DB_tables_list;
+    qDebug() << "Таблицы в БД, полученный список - " << Update_BD_Tables_List_Asked;
+    Update_Matrix_Tables_FieldNames = Matrix_Names;
+    Update_Matrix_Tables_FieldTypes = Matrix_Types;
+    qDebug() << "Массив имён полей, полученные данные" << Update_Matrix_Tables_FieldNames;
+    qDebug() << "Массив типов полей, полученные данные" << Update_Matrix_Tables_FieldTypes;
+    for (int i = 0; i < Update_BD_Tables_List_Asked.size(); ++i)
+    {
+    //int i = 1;
+        query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[i] + "\"";
+        Query_Test.exec(query_text);
+        Record_Test = Query_Test.record();
+        //for (int j = 0; j < Insert_Matrix_Tables_FieldNames[i]->count() - 1; ++j)
+        for(int j = 0; j < Record_Test.count(); ++j)
+        {
+
+            qDebug() << "Имя поля - " + Update_Matrix_Tables_FieldNames[i][j] + "; Тип поля - " + Update_Matrix_Tables_FieldTypes[i][j];
+        }
+    }
+
+    // Передача индекса текущей таблицы для вставки
+    Update_BD_Tables_List_Asked.sort();
+    int vrem_number = 0;
+    Update_Table_Index = SQL_Window_Main().take_list_of_Tables(vrem_number);
+    qDebug() << "Согласно полученным данным, обновление будет вестись в таблицу с индексом" << Update_Table_Index;
+    qDebug() << "Это таблица" << Update_BD_Tables_List_Asked[Update_Table_Index];
+    //QString text_for_lineEdit = Insert_BD_Tables_List_Asked[Insert_Table_Index];
+    //ui->lineEdit_tableNow->setText(text_for_lineEdit);
+}
+
+// Функция для подключения данных о подключении и установке соединения
+void Dialog_SQL_Update::get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data)
+{
+    DB = QSqlDatabase::cloneDatabase(DB_conn_data, "PostgreSQL_New_Connect_Update");
+    qDebug() << "Update: Полученные данные про DB" << DB;
+    Update_Transfer_DB_Adress = DB.hostName();
+    qDebug() << "Update: Полученный адрес БД в Qstring - " << Update_Transfer_DB_Adress;
+    Update_Transfer_DB_Port = DB.port();
+    qDebug() << "update: Полученный port БД в Qstring" << QString::number(Update_Transfer_DB_Port);
+    Update_Transfer_DB_Name = DB.databaseName();
+    qDebug() << "Update: Полученное имя БД в QString" << Update_Transfer_DB_Name;
+    Update_Transfer_DB_User = DB.userName();
+    qDebug() << "Update: Полученный логин пользователя в QString" << Update_Transfer_DB_User;
+    Update_Transfer_DB_Password = DB.password();
+    qDebug() << "Update: Полученный пароль пользователя в QString" << Update_Transfer_DB_Password;
+
+    qDebug() << "Проверка на открытие файла с запрошенными параметрами";
+    DB = QSqlDatabase::addDatabase("QPSQL", "UpdateWindowConnect");
+    DB.setHostName(Update_Transfer_DB_Adress);
+    DB.setPort(Update_Transfer_DB_Port);
+    DB.setDatabaseName(Update_Transfer_DB_Name);
+    DB.setUserName(Update_Transfer_DB_User);
+    DB.setPassword(Update_Transfer_DB_Password);
+    if (DB.open())
+    {
+        qDebug() << "DB in Update is open: " << DB;
+    }
+    else
+    {
+        qDebug() << "Error in Update DB opening: " << DB.lastError();
+    }
+}
+
+
+
+
+
+
 
 /* OLD UPDATE_Students_Tasks
 void dialog_sql_update::on_lineEdit_student_id_editingFinished()

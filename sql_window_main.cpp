@@ -46,9 +46,11 @@ SQL_Window_Main::SQL_Window_Main(QWidget *parent) :
     connect(DeleteWindow, &Dialog_SQL_Delete::DelWindow, this, &SQL_Window_Main::show);
 
     // Инициализация окна Update
-    UpdateWindow = new dialog_sql_update();
+    //UpdateWindow = new dialog_sql_update();
+    UpdateWindow = new Dialog_SQL_Update();
     // Подключение через форму интерфейса
-    connect(UpdateWindow, &dialog_sql_update::UpWindow, this, &SQL_Window_Main::show);
+    //connect(UpdateWindow, &dialog_sql_update::UpWindow, this, &SQL_Window_Main::show);
+    connect(UpdateWindow, &Dialog_SQL_Update::UpWindow, this, &SQL_Window_Main::show);
 
     // Подсказки при наведении
     ui->pushButton_2->setToolTip("Переключить таблицу влево");
@@ -724,6 +726,26 @@ void SQL_Window_Main::on_lineEdit_editingFinished()
 
 void SQL_Window_Main::on_pushButton_7_clicked()
 {
+
+    if(Current_Table_Number == 0)
+    {
+        // Значит, мы сейчас на таблице пользовательского запроса
+        QMessageBox::warning(this, "Warning", "Вы находитесь на таблице пользовательского запроса. /n Обновление данных будет осуществляться в первой таблице базы данных.");
+        TABLE_MODEL = new QSqlTableModel(this, DB);
+        QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        QUERY_MODEL = new QSqlQueryModel();
+        QUERY_MODEL->setQuery(query_text);
+        ui->tableView->setModel(QUERY_MODEL);
+        Current_Table_Number = 1;
+    }
+
+    // Передача данных о таблице
+    //dialog_sql_update().get_DB_connection_from_MainWindow(DB);
+    //dialog_sql_update().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes);
+    Dialog_SQL_Update().get_DB_connection_from_MainWindow(DB);
+    Dialog_SQL_Update().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes);
+
+
     // Переход на окно обновления данных
     qDebug() << "Переход на окно обновления данных";
     UpdateWindow->show();
@@ -757,7 +779,7 @@ int SQL_Window_Main::take_list_of_Tables(int Current_table_number_for_insert)
     //Current_table_number_for_insert = Current_Table_Number;
     // Пришлось ставить -1, так как иначе будет ошибка утечки памяти и программа крашнется
     Current_table_number_for_insert = Current_Table_Number - 1;
-    qDebug() << Current_table_number_for_insert << " - В данный момент в Insert передан индекс таблицы " << BD_Tables_List_Asked[Current_table_number_for_insert];
+    qDebug() << Current_table_number_for_insert << " - В данный момент в Insert / Update передан индекс таблицы " << BD_Tables_List_Asked[Current_table_number_for_insert];
     return Current_table_number_for_insert;
 }
 
@@ -806,4 +828,47 @@ void rpz_code_function()
     Querry_Update.bindValue(":data", 'Update_Querry_Text');
     Querry_Update.exec();
 
+    QSqlQuery Querry_Delete;
+    Querry_Delete.prepare("DELETE FROM public.\"TestTable1\" WHERE \"ID\" IN (:id);");
+    Querry_Delete.bindValue(":id", 8);
+    Querry_Delete.exec();
+
+    QSqlQueryModel SQL_Querry_Model;
+    SQL_Querry_Model.setQuery("SELECT * FROM public.\"TestTable1\"");
+    for (int i = 0; i < SQL_Querry_Model.rowCount(); ++i)
+    {
+        int ID = SQL_Querry_Model.record(i).value("ID").toInt();
+        QString Data = SQL_Querry_Model.record(i).value("Data").toString();
+        qDebug() << ID << Data;
+    }
+
+    QSqlTableModel SQL_Table_Model;
+    SQL_Table_Model.setTable("public.\"TestTable1\"");
+    SQL_Table_Model.setFilter("\"ID\" > 4");
+    SQL_Table_Model.select();
+    for (int i = 0; i < SQL_Table_Model.rowCount(); ++i)
+    {
+        int id = SQL_Table_Model.record(i).value("ID").toInt();
+        QString data = SQL_Table_Model.record(i).value("Data").toString();
+        qDebug() << id << data;
+    }
+
+    QSqlRelationalTableModel SQL_Relation_Model;
+    SQL_Relation_Model.setTable("public.\"TestTable1\"");
+    QSqlRecord SomeRecord;
+    int RecordNumber = 4;
+    QString data = "New Data";
+    SomeRecord.setValue("Data", data);
+    SQL_Relation_Model.setRecord(RecordNumber, SomeRecord);
+    int NumberDeleteRows = 2;
+    SQL_Relation_Model.removeRows(RecordNumber - 1, NumberDeleteRows);
+    SQL_Relation_Model.submitAll();
+
+    SQL_Relation_Model.setTable("public.\"TestTable1\"");
+    SQL_Relation_Model.setRelation(4, QSqlRelation("TestTable2", "ID", "Data"));
+
+    QAbstractItemModel* ViewModel = new QSqlRelationalTableModel;
+    QTableView *view = new QTableView;
+    view->setModel(ViewModel);
+    view->show();
 }

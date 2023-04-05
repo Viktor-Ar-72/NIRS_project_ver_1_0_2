@@ -10,9 +10,13 @@
 #include <QDebug>
 #include <QSqlTableModel>
 #include <QMessageBox>
+//#include <sql_window_main.h>
 namespace Ui {
-class dialog_sql_update;
+//class dialog_sql_update;
+class Dialog_SQL_Update;
 }
+
+#include <QSqlError>
 
 using namespace std;
 // Библиотеки для генератора на основе Вихря Мерсенна
@@ -20,13 +24,21 @@ using namespace std;
 #include <cstdlib>
 #include <random>
 
-class dialog_sql_update : public QDialog
+//class dialog_sql_update : public QDialog
+class Dialog_SQL_Update : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit dialog_sql_update(QWidget *parent = nullptr);
-    ~dialog_sql_update();
+    //explicit dialog_sql_update(QWidget *parent = nullptr);
+    explicit Dialog_SQL_Update(QWidget *parent = nullptr);
+    //~dialog_sql_update();
+    ~Dialog_SQL_Update();
+
+    // Функции для инициализации
+    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types);
+    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data);
+
 
 // Инициализация для второго окна
 signals:
@@ -42,7 +54,7 @@ private slots:
 
     void on_tabWidget_Update_currentChanged(int index);
 
-    /*
+/*
     void on_lineEdit_student_id_editingFinished();
 
     void on_lineEdit_student_var_editingFinished();
@@ -62,7 +74,8 @@ private slots:
 
 
 private:
-    Ui::dialog_sql_update *ui;
+    //Ui::dialog_sql_update *ui;
+    Ui::Dialog_SQL_Update *ui;
 
     // Переменные для работы с БД
     QSqlDatabase DB;

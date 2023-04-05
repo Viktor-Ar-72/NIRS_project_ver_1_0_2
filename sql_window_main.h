@@ -16,6 +16,9 @@
 #include <QSqlTableModel>
 #include <QSql>
 #include <QSqlQueryModel>
+#include <QSqlTableModel>
+#include <QSqlRelationalTableModel>
+#include <QSqlRecord>
 #include <QMessageBox>
 // Для работы с записями и полями таблиц
 #include <QSqlRecord>
@@ -88,7 +91,9 @@ private:
     // Инициализация окна для удаления значений
     Dialog_SQL_Delete *DeleteWindow;
     // Инициализация окна для обновления значений
-    dialog_sql_update *UpdateWindow;
+    //dialog_sql_update *UpdateWindow;
+    //dialog_sql_update *UpdateWindow;
+    Dialog_SQL_Update *UpdateWindow;
 
 };
 
