@@ -9,12 +9,13 @@
 #include <sql_window_main.h>
 #include <QFile>
 
+/*
 // Предел генерирования случайного числа
 //int Colvo_Unic = 100;
 //int Colvo_Unic = 10;
 // Глобальный массив для работы с уникальностью номеров
 //int *variants_number = new int[Colvo_Unic];
-
+*/
 // Для работы с присланными таблицами
 // Список таблиц
 QStringList Insert_BD_Tables_List_Asked;
@@ -120,9 +121,9 @@ void Dialog_SQL_Insert::on_comboBox_activated(int index)
 */
 
 // Глобальные переменные для работы с формами
-QString student_id, full_name, student_group, variant;
-QString task_id, task_complication, task_text, task_variant;
-int Table_Index;
+//QString student_id, full_name, student_group, variant;
+//QString task_id, task_complication, task_text, task_variant;
+//int Table_Index;
 
 // Глобальные переменные для работы с подключением к базе данных
 QString Insert_Transfer_DB_Adress, Insert_Transfer_DB_Name, Insert_Transfer_DB_User, Insert_Transfer_DB_Password;
@@ -1192,8 +1193,7 @@ void Dialog_SQL_Insert::on_lineEdit_bytea_left_editingFinished()
 void Dialog_SQL_Insert::on_lineEdit_bytea_lenght_editingFinished()
 {
     Insert_byteA_lenght = ui->lineEdit_bytea_lenght->text().toInt();
-    qDebug() << "Полученная длина последовательности Bytea - " << Insert_byteA_lenght;
-
+    qDebug() << "Полученная длина последовательности Bytea / Blob - " << Insert_byteA_lenght;
 }
 
 int* Dialog_SQL_Insert::VihrMersenna_Gen_Int(int* getted_rand_mass, int rasmer, int gen_VM_left_edge, int gen_VM_right_edge)
