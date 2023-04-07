@@ -77,7 +77,8 @@ WHERE "Column_Int_1" = 0
      *
      */
 
-    if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start) >= 0))
+    //if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start) >= 0))
+    if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start + 1) > 0))
     {
         // Создаём N-ое количество массивов, для каждого типа столбца текущей таблицы
         // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
@@ -120,11 +121,11 @@ WHERE "Column_Int_1" = 0
                 bytea_use = 'y';
             }
         }
-        int *Update_int_mass = new int[((Update_Fields_Finish - Update_Fields_Start) * k_int)];
-        QString* Update_varchar_mass = new QString[((Update_Fields_Finish - Update_Fields_Start) * k_varchar)];
-        double* Update_real_mass = new double[((Update_Fields_Finish - Update_Fields_Start) * k_real)];
-        bool* Update_bool_mass = new bool[((Update_Fields_Finish - Update_Fields_Start) * k_boolean)];
-        QString* Update_bytea_mass = new QString[((Update_Fields_Finish - Update_Fields_Start) * k_bytea)];
+        int *Update_int_mass = new int[((Update_Fields_Finish - Update_Fields_Start + 1) * k_int)];
+        QString* Update_varchar_mass = new QString[((Update_Fields_Finish - Update_Fields_Start + 1) * k_varchar)];
+        double* Update_real_mass = new double[((Update_Fields_Finish - Update_Fields_Start + 1) * k_real)];
+        bool* Update_bool_mass = new bool[((Update_Fields_Finish - Update_Fields_Start + 1) * k_boolean)];
+        QString* Update_bytea_mass = new QString[((Update_Fields_Finish - Update_Fields_Start + 1) * k_bytea)];
 
         if (int_use == 'y')
         {
@@ -132,18 +133,18 @@ WHERE "Column_Int_1" = 0
             {
                 if(Update_GenType == 1)
                 {
-                    Update_int_mass = Up_VihrMersenna_Gen_Int(Update_int_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_int), Update_int_left, Update_int_right);
+                    Update_int_mass = Up_VihrMersenna_Gen_Int(Update_int_mass, ((Update_Fields_Finish - Update_Fields_Start + 1) * k_int), Update_int_left, Update_int_right);
                 }
                 else if (Update_GenType == 2)
                 {
-                    Update_int_mass = Up_MacLarenMarsalii_Gen_Int(Update_int_mass, (Update_Fields_Finish - Update_Fields_Start) * k_int, Update_int_left, Update_int_right);
+                    Update_int_mass = Up_MacLarenMarsalii_Gen_Int(Update_int_mass, (Update_Fields_Finish - Update_Fields_Start + 1) * k_int, Update_int_left, Update_int_right);
                 }
                 else
                 {
                     QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand int - " << Update_int_mass;
-                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_int); ++i)
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_int); ++i)
                 {
                     qDebug() << "Полученный элемент INTEGER " << i << " равен = " << Update_int_mass[i];
 
@@ -164,18 +165,18 @@ WHERE "Column_Int_1" = 0
             {
                 if(Update_GenType == 1)
                 {
-                    Update_real_mass = Up_VihrMersenna_Gen_Real(Update_real_mass, ((Update_Fields_Finish - Update_Fields_Start)* k_real), Update_real_left, Update_real_right);
+                    Update_real_mass = Up_VihrMersenna_Gen_Real(Update_real_mass, ((Update_Fields_Finish - Update_Fields_Start + 1)* k_real), Update_real_left, Update_real_right);
                 }
                 else if (Update_GenType == 2)
                 {
-                    Update_real_mass = Up_MacLarenMarsalii_Gen_Real(Update_real_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_real), Update_real_left, Update_real_right);
+                    Update_real_mass = Up_MacLarenMarsalii_Gen_Real(Update_real_mass, ((Update_Fields_Finish - Update_Fields_Start + 1) * k_real), Update_real_left, Update_real_right);
                 }
                 else
                 {
                     QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand real - " << Update_real_mass;
-                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_real); ++i)
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_real); ++i)
                 {
                     qDebug() << "Полученный REAL элемент " << i << " равен = " << Update_real_mass[i];
                 }
@@ -196,18 +197,18 @@ WHERE "Column_Int_1" = 0
             {
                 if(Update_GenType == 1)
                 {
-                    Update_varchar_mass = Up_VihrMersenna_Gen_Char(Update_varchar_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_varchar), Update_varchar_lenght, 0, 125);
+                    Update_varchar_mass = Up_VihrMersenna_Gen_Char(Update_varchar_mass, ((Update_Fields_Finish - Update_Fields_Start + 1) * k_varchar), Update_varchar_lenght, 0, 125);
                 }
                 else if (Update_GenType == 2)
                 {
-                    Update_varchar_mass = Up_MacLarenMarsalii_Gen_Char(Update_varchar_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_varchar), Update_varchar_lenght, 0, 125);
+                    Update_varchar_mass = Up_MacLarenMarsalii_Gen_Char(Update_varchar_mass, ((Update_Fields_Finish - Update_Fields_Start + 1) * k_varchar), Update_varchar_lenght, 0, 125);
                 }
                 else
                 {
                     QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand varchar - " << Update_varchar_mass;
-                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_varchar); ++i)
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_varchar); ++i)
                 {
                     qDebug() << "Полученный элемент VARCHAR " << i << " равен = " << Update_varchar_mass[i];
                 }
@@ -224,21 +225,21 @@ WHERE "Column_Int_1" = 0
             // Заполнение генератора BOOL
             if(Update_use_boolean != 0)
             {
-                int* dop_intBool_mass = new int[((Update_Fields_Finish - Update_Fields_Start) * k_boolean)];
+                int* dop_intBool_mass = new int[((Update_Fields_Finish - Update_Fields_Start + 1) * k_boolean)];
                 if(Update_GenType == 1)
                 {
-                    dop_intBool_mass = Up_VihrMersenna_Gen_Int(dop_intBool_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_boolean), 0, 1);
+                    dop_intBool_mass = Up_VihrMersenna_Gen_Int(dop_intBool_mass, ((Update_Fields_Finish - Update_Fields_Start + 1) * k_boolean), 0, 1);
                 }
                 else if (Update_GenType == 2)
                 {
-                    dop_intBool_mass = Up_MacLarenMarsalii_Gen_Int(dop_intBool_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_boolean), 0, 1);
+                    dop_intBool_mass = Up_MacLarenMarsalii_Gen_Int(dop_intBool_mass, ((Update_Fields_Finish - Update_Fields_Start + 1) * k_boolean), 0, 1);
                 }
                 else
                 {
                     QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand intBool - " << dop_intBool_mass;
-                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_boolean); ++i)
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_boolean); ++i)
                 {
                     if (dop_intBool_mass[i] == 0)
                     {
@@ -253,7 +254,7 @@ WHERE "Column_Int_1" = 0
             }
             else
             {
-                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_boolean); ++i)
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_boolean); ++i)
                 {
                     Update_bool_mass[i] = true;
                 }
@@ -266,18 +267,18 @@ WHERE "Column_Int_1" = 0
             {
                 if(Update_GenType == 1)
                 {
-                    Update_bytea_mass = Up_VihrMersenna_Gen_ByteA(Update_bytea_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_bytea), Update_byteA_lenght, 0, 90);
+                    Update_bytea_mass = Up_VihrMersenna_Gen_ByteA(Update_bytea_mass, ((Update_Fields_Finish - Update_Fields_Start + 1) * k_bytea), Update_byteA_lenght, 0, 90);
                 }
                 else if (Update_GenType == 2)
                 {
-                    Update_bytea_mass = Up_MacLarenMarsalii_Gen_ByteA(Update_bytea_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_bytea), Update_byteA_lenght, 0, 90);
+                    Update_bytea_mass = Up_MacLarenMarsalii_Gen_ByteA(Update_bytea_mass, ((Update_Fields_Finish - Update_Fields_Start + 1) * k_bytea), Update_byteA_lenght, 0, 90);
                 }
                 else
                 {
                     QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand bytea - " << Update_bytea_mass;
-                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_bytea); ++i)
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_bytea); ++i)
                 {
                     qDebug() << "Полученный элемент BYTEA " << i << " равен = " << Update_bytea_mass[i];
                 }
@@ -338,7 +339,7 @@ WHERE "Column_Int_1" = 0
         }
         */
 
-        QString* Update_Where_Types = new QString[(Update_Fields_Finish - Update_Fields_Start + 1)];
+        QString* Update_Where_Values = new QString[(Update_Fields_Finish - Update_Fields_Start + 1)];
 
         //for (int i = 0; i < SQL_Querry_Model.rowCount(); ++i)
         int m = 0;
@@ -350,6 +351,7 @@ WHERE "Column_Int_1" = 0
                 qDebug() << "Найдена " << m << " строка для обновления на " << i << " месте";
                 //qDebug() << SQL_Querry_Model.record().value(Update_Matrix_Tables_FieldNames[Update_Table_Index][0]).toString();
                 qDebug() << SQL_Querry_Model.record(i).value(Update_Matrix_Tables_FieldNames[Update_Table_Index][0]).toString();
+                Update_Where_Values[m] = SQL_Querry_Model.record(i).value(Update_Matrix_Tables_FieldNames[Update_Table_Index][0]).toString();
                 m += 1;
             }
 
@@ -375,7 +377,7 @@ WHERE "Column_Int_1" = 0
         QString query_Update_text;
         QString boolean_type_QString;
         //for (int V = 0; V < (Update_Fields_Finish - Update_Fields_Start); ++V)
-        for (int V = 0; V < (Update_Fields_Finish - Update_Fields_Start); ++V)
+        for (int V = 0; V < (Update_Fields_Finish - Update_Fields_Start + 1); ++V)
         {
             //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (";
             //query_insert_text = "";
@@ -460,6 +462,8 @@ WHERE "Column_Int_1" = 0
             query_Update_text = query_Update_text.left(position);
             // Не требуется, так как у нас не Insert - запрос
             //query_Update_text = query_Update_text.append(");");
+            // Дополнение запроса Update
+            query_Update_text = query_Update_text + " WHERE " + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][0] + '"' + " = " + Update_Where_Values[V];
 
             qDebug() << "Запрос на вставку" << V << query_Update_text;
             QFile file("output_Update_Query_Test.txt");
