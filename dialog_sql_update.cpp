@@ -4,6 +4,9 @@
 #include <QCompleter>
 #include <QSqlRecord>
 #include <QFile>
+// Для преобразования типа переменной
+#include <type_traits>
+#include <QVariant>
 
 //dialog_sql_update::dialog_sql_update(QWidget *parent) :
 Dialog_SQL_Update::Dialog_SQL_Update(QWidget *parent) :
@@ -67,352 +70,437 @@ double Update_real_left, Update_real_right;
 
 void Dialog_SQL_Update::on_pushButton_OK_clicked()
 {
-    // Создаём N-ое количество массивов, для каждого типа столбца текущей таблицы
-    // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
-    QString query_text;
-    QSqlRecord Record_Test;
-    QSqlQuery Query_Test;
-    query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
-    Query_Test.exec(query_text);
-    Record_Test = Query_Test.record();
-    //for (int R = 0; R < Insert_Matrix_Tables_FieldNames[Insert_Table_Index]->count() - 1; ++R)
-    // Переменные для расчёта количества элементов
-    int k_int = 0; int k_varchar = 0; int k_real = 0; int k_bytea = 0; int k_boolean = 0;
-    char int_use = 'n'; char char_use = 'n'; char real_use = 'n'; char bytea_use = 'n';
-    char bool_use = 'n';
-    for (int K = 0; K < Record_Test.count(); ++K)
+    /*
+     * UPDATE public."TestTable_1"
+SET "Column_Int_1" = 5, "Column_Int_2" = 10, "Column_Text" = 'Test Update text', "Column_Bool" = true
+WHERE "Column_Int_1" = 0
+     *
+     */
+
+    if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start) >= 0))
     {
-        if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "int")
+        // Создаём N-ое количество массивов, для каждого типа столбца текущей таблицы
+        // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
+        QString query_text;
+        QSqlRecord Record_Test;
+        QSqlQuery Query_Test;
+        query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+        Query_Test.exec(query_text);
+        Record_Test = Query_Test.record();
+        //for (int R = 0; R < Insert_Matrix_Tables_FieldNames[Insert_Table_Index]->count() - 1; ++R)
+        // Переменные для расчёта количества элементов
+        int k_int = 0; int k_varchar = 0; int k_real = 0; int k_bytea = 0; int k_boolean = 0;
+        char int_use = 'n'; char char_use = 'n'; char real_use = 'n'; char bytea_use = 'n';
+        char bool_use = 'n';
+        for (int K = 0; K < Record_Test.count(); ++K)
         {
-            k_int += 1;
-            int_use = 'y';
+            if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "int")
+            {
+                k_int += 1;
+                int_use = 'y';
+            }
+            if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "QString")
+            {
+                k_varchar += 1;
+                char_use = 'y';
+            }
+            if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "double")
+            {
+                k_real += 1;
+                real_use = 'y';
+            }
+            if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "bool")
+            {
+                k_boolean += 1;
+                bool_use = 'y';
+            }
+            if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "ByteA")
+            {
+                k_bytea += 1;
+                bytea_use = 'y';
+            }
         }
-        if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "QString")
-        {
-            k_varchar += 1;
-            char_use = 'y';
-        }
-        if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "double")
-        {
-            k_real += 1;
-            real_use = 'y';
-        }
-        if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "bool")
-        {
-            k_boolean += 1;
-            bool_use = 'y';
-        }
-        if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][K] == "ByteA")
-        {
-            k_bytea += 1;
-            bytea_use = 'y';
-        }
-    }
-    int *Update_int_mass = new int[((Update_Fields_Finish - Update_Fields_Start) * k_int)];
-    QString* Update_varchar_mass = new QString[((Update_Fields_Finish - Update_Fields_Start) * k_varchar)];
-    double* Update_real_mass = new double[((Update_Fields_Finish - Update_Fields_Start) * k_real)];
-    bool* Update_bool_mass = new bool[((Update_Fields_Finish - Update_Fields_Start) * k_boolean)];
-    QString* Update_bytea_mass = new QString[((Update_Fields_Finish - Update_Fields_Start) * k_bytea)];
+        int *Update_int_mass = new int[((Update_Fields_Finish - Update_Fields_Start) * k_int)];
+        QString* Update_varchar_mass = new QString[((Update_Fields_Finish - Update_Fields_Start) * k_varchar)];
+        double* Update_real_mass = new double[((Update_Fields_Finish - Update_Fields_Start) * k_real)];
+        bool* Update_bool_mass = new bool[((Update_Fields_Finish - Update_Fields_Start) * k_boolean)];
+        QString* Update_bytea_mass = new QString[((Update_Fields_Finish - Update_Fields_Start) * k_bytea)];
 
-    if (int_use == 'y')
-    {
-        if ((Update_int_left != Update_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != "") && (Update_int_left < Update_int_right))
+        if (int_use == 'y')
         {
-            if(Update_GenType == 1)
+            if ((Update_int_left != Update_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != "") && (Update_int_left < Update_int_right))
             {
-                Update_int_mass = Up_VihrMersenna_Gen_Int(Update_int_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_int), Update_int_left, Update_int_right);
-            }
-            else if (Update_GenType == 2)
-            {
-                Update_int_mass = Up_MacLarenMarsalii_Gen_Int(Update_int_mass, (Update_Fields_Finish - Update_Fields_Start) * k_int, Update_int_left, Update_int_right);
-            }
-            else
-            {
-                QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
-            }
-            qDebug() << "Полученный массив rand int - " << Update_int_mass;
-            for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_int); ++i)
-            {
-                qDebug() << "Полученный элемент INTEGER " << i << " равен = " << Update_int_mass[i];
-
-            }
-
-        }
-        else
-        {
-            QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности INT!\n Пожалуйста, переопределите!");
-            return;
-        }
-    }
-
-    // Заполнение генератора REAL
-    if (real_use == 'y')
-    {
-        if ((Update_real_left != Update_real_right) && (ui->lineEdit_real_left->text() != "") && (ui->lineEdit_real_right->text() != "") && (Update_real_left < Update_real_right))
-        {
-            if(Update_GenType == 1)
-            {
-                Update_real_mass = Up_VihrMersenna_Gen_Real(Update_real_mass, ((Update_Fields_Finish - Update_Fields_Start)* k_real), Update_real_left, Update_real_right);
-            }
-            else if (Update_GenType == 2)
-            {
-                Update_real_mass = Up_MacLarenMarsalii_Gen_Real(Update_real_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_real), Update_real_left, Update_real_right);
-            }
-            else
-            {
-                QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
-            }
-            qDebug() << "Полученный массив rand real - " << Update_real_mass;
-            for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_real); ++i)
-            {
-                qDebug() << "Полученный REAL элемент " << i << " равен = " << Update_real_mass[i];
-            }
-
-        }
-        else
-        {
-            QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности REAL!\n Пожалуйста, переопределите!");
-            return;
-        }
-    }
-
-    if (char_use == 'y')
-    {
-        // Заполнение генератора Varchar
-        //if ((Update_int_left != Update_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != ""))
-        if(Update_varchar_lenght != 0)
-        {
-            if(Update_GenType == 1)
-            {
-                Update_varchar_mass = Up_VihrMersenna_Gen_Char(Update_varchar_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_varchar), Update_varchar_lenght, 0, 125);
-            }
-            else if (Update_GenType == 2)
-            {
-                Update_varchar_mass = Up_MacLarenMarsalii_Gen_Char(Update_varchar_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_varchar), Update_varchar_lenght, 0, 125);
-            }
-            else
-            {
-                QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
-            }
-            qDebug() << "Полученный массив rand varchar - " << Update_varchar_mass;
-            for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_varchar); ++i)
-            {
-                qDebug() << "Полученный элемент VARCHAR " << i << " равен = " << Update_varchar_mass[i];
-            }
-        }
-        else
-        {
-            QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности VARCHAR!\n Пожалуйста, переопределите!");
-            return;
-        }
-    }
-
-    if (bool_use == 'y')
-    {
-        // Заполнение генератора BOOL
-        if(Update_use_boolean != 0)
-        {
-            int* dop_intBool_mass = new int[((Update_Fields_Finish - Update_Fields_Start) * k_boolean)];
-            if(Update_GenType == 1)
-            {
-                dop_intBool_mass = Up_VihrMersenna_Gen_Int(dop_intBool_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_boolean), 0, 1);
-            }
-            else if (Update_GenType == 2)
-            {
-                dop_intBool_mass = Up_MacLarenMarsalii_Gen_Int(dop_intBool_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_boolean), 0, 1);
-            }
-            else
-            {
-                QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
-            }
-            qDebug() << "Полученный массив rand intBool - " << dop_intBool_mass;
-            for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_boolean); ++i)
-            {
-                if (dop_intBool_mass[i] == 0)
+                if(Update_GenType == 1)
                 {
-                    Update_bool_mass[i] = false;
+                    Update_int_mass = Up_VihrMersenna_Gen_Int(Update_int_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_int), Update_int_left, Update_int_right);
+                }
+                else if (Update_GenType == 2)
+                {
+                    Update_int_mass = Up_MacLarenMarsalii_Gen_Int(Update_int_mass, (Update_Fields_Finish - Update_Fields_Start) * k_int, Update_int_left, Update_int_right);
                 }
                 else
+                {
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                }
+                qDebug() << "Полученный массив rand int - " << Update_int_mass;
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_int); ++i)
+                {
+                    qDebug() << "Полученный элемент INTEGER " << i << " равен = " << Update_int_mass[i];
+
+                }
+
+            }
+            else
+            {
+                QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности INT!\n Пожалуйста, переопределите!");
+                return;
+            }
+        }
+
+        // Заполнение генератора REAL
+        if (real_use == 'y')
+        {
+            if ((Update_real_left != Update_real_right) && (ui->lineEdit_real_left->text() != "") && (ui->lineEdit_real_right->text() != "") && (Update_real_left < Update_real_right))
+            {
+                if(Update_GenType == 1)
+                {
+                    Update_real_mass = Up_VihrMersenna_Gen_Real(Update_real_mass, ((Update_Fields_Finish - Update_Fields_Start)* k_real), Update_real_left, Update_real_right);
+                }
+                else if (Update_GenType == 2)
+                {
+                    Update_real_mass = Up_MacLarenMarsalii_Gen_Real(Update_real_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_real), Update_real_left, Update_real_right);
+                }
+                else
+                {
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                }
+                qDebug() << "Полученный массив rand real - " << Update_real_mass;
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_real); ++i)
+                {
+                    qDebug() << "Полученный REAL элемент " << i << " равен = " << Update_real_mass[i];
+                }
+
+            }
+            else
+            {
+                QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности REAL!\n Пожалуйста, переопределите!");
+                return;
+            }
+        }
+
+        if (char_use == 'y')
+        {
+            // Заполнение генератора Varchar
+            //if ((Update_int_left != Update_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != ""))
+            if(Update_varchar_lenght != 0)
+            {
+                if(Update_GenType == 1)
+                {
+                    Update_varchar_mass = Up_VihrMersenna_Gen_Char(Update_varchar_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_varchar), Update_varchar_lenght, 0, 125);
+                }
+                else if (Update_GenType == 2)
+                {
+                    Update_varchar_mass = Up_MacLarenMarsalii_Gen_Char(Update_varchar_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_varchar), Update_varchar_lenght, 0, 125);
+                }
+                else
+                {
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                }
+                qDebug() << "Полученный массив rand varchar - " << Update_varchar_mass;
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_varchar); ++i)
+                {
+                    qDebug() << "Полученный элемент VARCHAR " << i << " равен = " << Update_varchar_mass[i];
+                }
+            }
+            else
+            {
+                QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности VARCHAR!\n Пожалуйста, переопределите!");
+                return;
+            }
+        }
+
+        if (bool_use == 'y')
+        {
+            // Заполнение генератора BOOL
+            if(Update_use_boolean != 0)
+            {
+                int* dop_intBool_mass = new int[((Update_Fields_Finish - Update_Fields_Start) * k_boolean)];
+                if(Update_GenType == 1)
+                {
+                    dop_intBool_mass = Up_VihrMersenna_Gen_Int(dop_intBool_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_boolean), 0, 1);
+                }
+                else if (Update_GenType == 2)
+                {
+                    dop_intBool_mass = Up_MacLarenMarsalii_Gen_Int(dop_intBool_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_boolean), 0, 1);
+                }
+                else
+                {
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                }
+                qDebug() << "Полученный массив rand intBool - " << dop_intBool_mass;
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_boolean); ++i)
+                {
+                    if (dop_intBool_mass[i] == 0)
+                    {
+                        Update_bool_mass[i] = false;
+                    }
+                    else
+                    {
+                        Update_bool_mass[i] = true;
+                    }
+                    qDebug() << "Полученный элемент BOOL " << i << " равен = " << Update_bool_mass[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_boolean); ++i)
                 {
                     Update_bool_mass[i] = true;
                 }
-                qDebug() << "Полученный элемент BOOL " << i << " равен = " << Update_bool_mass[i];
             }
         }
-        else
+        if (bytea_use == 'y')
         {
-            for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_boolean); ++i)
+            //qDebug() << "Будет использоватьмся массив byteA";
+            if(Update_byteA_lenght != 0)
             {
-                Update_bool_mass[i] = true;
-            }
-        }
-    }
-    if (bytea_use == 'y')
-    {
-        //qDebug() << "Будет использоватьмся массив byteA";
-        if(Update_byteA_lenght != 0)
-        {
-            if(Update_GenType == 1)
-            {
-                Update_bytea_mass = Up_VihrMersenna_Gen_ByteA(Update_bytea_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_bytea), Update_byteA_lenght, 0, 90);
-            }
-            else if (Update_GenType == 2)
-            {
-                Update_bytea_mass = Up_MacLarenMarsalii_Gen_ByteA(Update_bytea_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_bytea), Update_byteA_lenght, 0, 90);
+                if(Update_GenType == 1)
+                {
+                    Update_bytea_mass = Up_VihrMersenna_Gen_ByteA(Update_bytea_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_bytea), Update_byteA_lenght, 0, 90);
+                }
+                else if (Update_GenType == 2)
+                {
+                    Update_bytea_mass = Up_MacLarenMarsalii_Gen_ByteA(Update_bytea_mass, ((Update_Fields_Finish - Update_Fields_Start) * k_bytea), Update_byteA_lenght, 0, 90);
+                }
+                else
+                {
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                }
+                qDebug() << "Полученный массив rand bytea - " << Update_bytea_mass;
+                for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_bytea); ++i)
+                {
+                    qDebug() << "Полученный элемент BYTEA " << i << " равен = " << Update_bytea_mass[i];
+                }
             }
             else
             {
-                QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
-            }
-            qDebug() << "Полученный массив rand bytea - " << Update_bytea_mass;
-            for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start) * k_bytea); ++i)
-            {
-                qDebug() << "Полученный элемент BYTEA " << i << " равен = " << Update_bytea_mass[i];
+                QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности BYTEA!\n Пожалуйста, переопределите!");
+                return;
             }
         }
-        else
-        {
-            QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности BYTEA!\n Пожалуйста, переопределите!");
-            return;
+
+
+        QSqlQueryModel SQL_Querry_Model;
+        QString query_U_borders;
+        query_U_borders = "SELECT * FROM public.";
+        query_U_borders += '"' + Update_BD_Tables_List_Asked[Update_Table_Index] + '"' + " ORDER BY" + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][0] + '"';
+        qDebug() << "Запрос на поиск нужной строки - " << query_U_borders;
+        SQL_Querry_Model.setQuery(query_U_borders);
+
+        // Test 1
+        //QString Test_string = "int";
+        //std::conditional<Test_string == "int", int, double>::type k;
+        // Test 2
+        /*
+        QString Test_string = "int";
+        QVariant value;
+        switch (qHash(Test_string)) {
+            case qHash("int"):
+                value = QVariant::fromValue<int>(0);
+                break;
+            case qHash("double"):
+                value = QVariant::fromValue<double>(0.0);
+                break;
+            case qHash("QString"):
+                value = QVariant::fromValue<QString>("");
+                break;
+            default:
+                // неизвестный тип
+                break;
         }
-    }
+        */
+        // Test 3
+        /*
+        enum Type { INT, DOUBLE, STRING };
+        Type type = INT;
+        switch(type) {
+            case INT:
+                int x = 0;
+                break;
+            case DOUBLE:
+                double y = 0.0;
+                break;
+            case STRING:
+                QString s = "";
+                break;
+            default:
+                break;
+        }
+        */
 
+        QString* Update_Where_Types = new QString[(Update_Fields_Finish - Update_Fields_Start + 1)];
 
-
-
-
-    // Вставка значений в таблицу через Update
-    // Testes
-    //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" (Column_Int_1, Column_Int_2, Column_Text, Column_Bool) VALUES ('0'::integer, '0'::integer, 'test_insert'::text, 'TRUE'::boolean)";
-    // Такая реализаия работает. Надо придумать, как редактировать состав вставляемых данных
-    //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (0, 0, 'Test_insert_1', TRUE)";
-    QSqlRecord Update_Record;
-    QSqlQuery Query_Update;
-    QString query_vrem_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
-    Query_Update.exec(query_vrem_text);
-    Update_Record = Query_Update.record();
-    //int h = Record_Test.count();
-    //qDebug() << "В данной таблице необходимо вставить " << h << " столбцов";
-    QString query_Update_text;
-    QString boolean_type_QString;
-    for (int V = 0; V < (Update_Fields_Finish - Update_Fields_Start); ++V)
-    {
-        //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (";
-        //query_insert_text = "";
-        // Создание шаблона запроса. И снова спасибо ПЗЕ4:)
-        //query_Update_text = "Insert INTO public.";
-        // Test
-        query_Update_text = "UPDATE public.";
-        query_Update_text += '"';
-        query_Update_text = query_Update_text + Update_BD_Tables_List_Asked[Update_Table_Index];
-        query_Update_text.append('"');
-        query_Update_text = query_Update_text + " SET VALUES (";
-
-        // Создание дополнительных переменных для доп.циклов
-        int start_index_int = V * k_int;
-        //int end_index_int = start_index_int + k_int;
-        int start_index_varchar = V * k_varchar;
-        int start_index_real = V * k_real;
-        int start_index_bool = V * k_boolean;
-        int start_index_bytea = V * k_bytea;
-
-        for (int A = 0; A < Update_Record.count(); ++A)
+        //for (int i = 0; i < SQL_Querry_Model.rowCount(); ++i)
+        int m = 0;
+        for (int i = 0; i < SQL_Querry_Model.rowCount(); ++i)
         {
+            //int m = 0; //qDebug() << "Строка " << i;
+            if (i >= Update_Fields_Start && i <= Update_Fields_Finish)
+            {
+                qDebug() << "Найдена " << m << " строка для обновления на " << i << " месте";
+                //qDebug() << SQL_Querry_Model.record().value(Update_Matrix_Tables_FieldNames[Update_Table_Index][0]).toString();
+                qDebug() << SQL_Querry_Model.record(i).value(Update_Matrix_Tables_FieldNames[Update_Table_Index][0]).toString();
+                m += 1;
+            }
 
-            if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "int")
-            {
-                //query_insert_text = query_insert_text + QString(Insert_int_mass[Insert_Fields_Number]) + ", ";
-                //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение int, ";
-                //query_insert_text = query_insert_text + QString::number(Insert_int_mass[V]) + ", ";
-                query_Update_text = query_Update_text + QString::number(Update_int_mass[start_index_int]) + ", ";
-                ++start_index_int;
-            }
-            else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "QString")
-            {
-                //query_insert_text = query_insert_text + Insert_varchar_mass[Insert_Fields_Number] + ", ";
-                //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение QString, ";
-                //query_insert_text = query_insert_text + "'" + Insert_varchar_mass[V] + "', ";
-                query_Update_text = query_Update_text + "'" + Update_varchar_mass[start_index_varchar] + "', ";
-                ++start_index_varchar;
-            }
-            else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "double")
-            {
-                // Сохранение точности до определённого знака после запятой
-                query_Update_text = query_Update_text + QString::number(Update_real_mass[start_index_real], 'g', 7) + ", ";
-                ++start_index_real;
-            }
-            else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "ByteA")
-            {
-                //query_insert_text = query_insert_text + "'" + R"(\x)" + Insert_bytea_mass[start_index_bytea] + "', ";
-                query_Update_text = query_Update_text + "'";
-                query_Update_text += QString::fromUtf8("\x5C\x78");
-                // int index = query_insert_text.lastIndexOf("\\");
-                // query_insert_text.replace(index, 1, "\x5C\x78");
-                // query_insert_text.remove(0, 1);
-                // query_insert_text.prepend("'");
-                query_Update_text = query_Update_text + Update_bytea_mass[start_index_bytea] + "', ";
-                ++start_index_bytea;
-                // Test byteA input check
 
-                QFile file("output_BYTEA_Update_Test.txt");
-                if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                    QTextStream out(&file);
-                    out << query_Update_text; // записываем содержимое строки в файл
-                    file.close();
+
+            //int ID = SQL_Querry_Model.record(i).value("ID").toInt();
+            //QString Data = SQL_Querry_Model.record(i).value("Data").toString();
+            //qDebug() << ID << Data;
+        }
+
+        // Вставка значений в таблицу через Update
+        // Testes
+        //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" (Column_Int_1, Column_Int_2, Column_Text, Column_Bool) VALUES ('0'::integer, '0'::integer, 'test_insert'::text, 'TRUE'::boolean)";
+        // Такая реализаия работает. Надо придумать, как редактировать состав вставляемых данных
+        //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (0, 0, 'Test_insert_1', TRUE)";
+        QSqlRecord Update_Record;
+        QSqlQuery Query_Update;
+        QString query_vrem_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+        Query_Update.exec(query_vrem_text);
+        Update_Record = Query_Update.record();
+        //int h = Record_Test.count();
+        //qDebug() << "В данной таблице необходимо вставить " << h << " столбцов";
+        QString query_Update_text;
+        QString boolean_type_QString;
+        //for (int V = 0; V < (Update_Fields_Finish - Update_Fields_Start); ++V)
+        for (int V = 0; V < (Update_Fields_Finish - Update_Fields_Start); ++V)
+        {
+            //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (";
+            //query_insert_text = "";
+            // Создание шаблона запроса. И снова спасибо ПЗЕ4:)
+            //query_Update_text = "Insert INTO public.";
+            // Test
+            query_Update_text = "UPDATE public.";
+            query_Update_text += '"';
+            query_Update_text = query_Update_text + Update_BD_Tables_List_Asked[Update_Table_Index];
+            query_Update_text.append('"');
+            query_Update_text = query_Update_text + " SET ";
+
+            // Создание дополнительных переменных для доп.циклов
+            int start_index_int = V * k_int;
+            //int end_index_int = start_index_int + k_int;
+            int start_index_varchar = V * k_varchar;
+            int start_index_real = V * k_real;
+            int start_index_bool = V * k_boolean;
+            int start_index_bytea = V * k_bytea;
+
+            for (int A = 0; A < Update_Record.count(); ++A)
+            {
+
+                if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "int")
+                {
+                    //query_insert_text = query_insert_text + QString(Insert_int_mass[Insert_Fields_Number]) + ", ";
+                    //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение int, ";
+                    //query_insert_text = query_insert_text + QString::number(Insert_int_mass[V]) + ", ";
+                    query_Update_text = query_Update_text + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][A] + '"' + " = " + QString::number(Update_int_mass[start_index_int]) + ", ";
+                    ++start_index_int;
+                }
+                else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "QString")
+                {
+                    //query_insert_text = query_insert_text + Insert_varchar_mass[Insert_Fields_Number] + ", ";
+                    //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение QString, ";
+                    //query_insert_text = query_insert_text + "'" + Insert_varchar_mass[V] + "', ";
+                    query_Update_text = query_Update_text + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][A] + '"' + " = '" + Update_varchar_mass[start_index_varchar] + "', ";
+                    ++start_index_varchar;
+                }
+                else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "double")
+                {
+                    // Сохранение точности до определённого знака после запятой
+                    query_Update_text = query_Update_text + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][A] + '"' + " = "  + QString::number(Update_real_mass[start_index_real], 'g', 7) + ", ";
+                    ++start_index_real;
+                }
+                else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "ByteA")
+                {
+                    //query_insert_text = query_insert_text + "'" + R"(\x)" + Insert_bytea_mass[start_index_bytea] + "', ";
+                    query_Update_text = query_Update_text + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][A] + '"' + " = " + "'";
+                    query_Update_text += QString::fromUtf8("\x5C\x78");
+                    // int index = query_insert_text.lastIndexOf("\\");
+                    // query_insert_text.replace(index, 1, "\x5C\x78");
+                    // query_insert_text.remove(0, 1);
+                    // query_insert_text.prepend("'");
+                    query_Update_text = query_Update_text + Update_bytea_mass[start_index_bytea] + "', ";
+                    ++start_index_bytea;
+                    // Test byteA input check
+                }
+                else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "bool")
+                {
+                    //query_insert_text = query_insert_text + Insert_bool_mass[Insert_Fields_Number] + ")";
+                    //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение bool, ";
+                    //QString q = "";
+                    boolean_type_QString = "";
+                    //if (Insert_bool_mass[V] == true)
+                    if (Update_bool_mass[start_index_bool] == true)
+                    { boolean_type_QString = "TRUE"; }
+                    else
+                    { boolean_type_QString = "FALSE"; }
+                    query_Update_text = query_Update_text + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][A] + '"' + " = " + boolean_type_QString + ", ";
+                    ++start_index_bool;
+                }
+                else {
+                    // На всякий случай заккоментил, чтобы не было лишнего Warning
+                    //query_insert_text = query_insert_text;
                 }
             }
-            else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "bool")
-            {
-                //query_insert_text = query_insert_text + Insert_bool_mass[Insert_Fields_Number] + ")";
-                //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение bool, ";
-                //QString q = "";
-                boolean_type_QString = "";
-                //if (Insert_bool_mass[V] == true)
-                if (Update_bool_mass[start_index_bool] == true)
-                { boolean_type_QString = "TRUE"; }
-                else
-                { boolean_type_QString = "FALSE"; }
-                query_Update_text = query_Update_text + boolean_type_QString + ", ";
-                ++start_index_bool;
+            // Убираем последнюю запятую (спасибо ПЗЕ4 :) )
+            //query_insert_text.remove((query_insert_text.length() - 1), 3);
+            //query_insert_text = query_insert_text + ");";
+            int position = query_Update_text.lastIndexOf(QChar(','));
+            query_Update_text = query_Update_text.left(position);
+            // Не требуется, так как у нас не Insert - запрос
+            //query_Update_text = query_Update_text.append(");");
+
+            qDebug() << "Запрос на вставку" << V << query_Update_text;
+            QFile file("output_Update_Query_Test.txt");
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream out(&file);
+                out << query_Update_text; // записываем содержимое строки в файл
+                file.close();
             }
-            else {
-                // На всякий случай заккоментил, чтобы не было лишнего Warning
-                //query_insert_text = query_insert_text;
-            }
+
+
+            // Если временно закомменчено - значит, происходит тест на обновление данных
+            //QUERY_MODEL->setQuery(query_Update_text);
+            //qDebug() << "Запрос на вставку" << V << "выполнен.";
         }
-        // Убираем последнюю запятую (спасибо ПЗЕ4 :) )
-        //query_insert_text.remove((query_insert_text.length() - 1), 3);
-        //query_insert_text = query_insert_text + ");";
-        int position = query_Update_text.lastIndexOf(QChar(','));
-        query_Update_text = query_Update_text.left(position);
-        query_Update_text = query_Update_text.append(");");
-        qDebug() << "Запрос на вставку" << V << query_Update_text;
-        // Если временно закомменчено - значит, происходит тест на вставку данных
-        //QUERY_MODEL->setQuery(query_Update_text);
-        //qDebug() << "Запрос на вставку" << V << "выполнен.";
+
+
+
+        //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (" + QString(rand() % 255) + ", " + QString(rand() % 255) + ", 'Test_insert_1', TRUE)";
+        // Сверка с генерированными запросами
+        //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (0, 0, 'Test_insert_1', TRUE)";
+        //qDebug() << "Запрос на вставку" << 9 << query_insert_text;
+
+        query_Update_text = ""; // Заглушка
+        QUERY_MODEL->setQuery(query_Update_text);
+        // Закрытие окна вставки данных
+        qDebug() << "Окно Update закрыто вместе с сохранением данных в таблицу";
+        // Очистка массивов
+        delete [] Update_int_mass;
+        delete [] Update_varchar_mass;
+        delete [] Update_real_mass;
+        delete [] Update_bytea_mass;
+        delete [] Update_bool_mass;
+        // Возврат к основному окну
+        this->close();
+        emit UpWindow();
     }
-
-
-
-    //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (" + QString(rand() % 255) + ", " + QString(rand() % 255) + ", 'Test_insert_1', TRUE)";
-    // Сверка с генерированными запросами
-    //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (0, 0, 'Test_insert_1', TRUE)";
-    //qDebug() << "Запрос на вставку" << 9 << query_insert_text;
-
-    query_Update_text = ""; // Заглушка
-    QUERY_MODEL->setQuery(query_Update_text);
-    // Закрытие окна вставки данных
-    qDebug() << "Окно Update закрыто вместе с сохранением данных в таблицу";
-    // Очистка массивов
-    delete [] Update_int_mass;
-    delete [] Update_varchar_mass;
-    delete [] Update_real_mass;
-    delete [] Update_bytea_mass;
-    delete [] Update_bool_mass;
-    // Возврат к основному окну
-    this->close();
-    emit UpWindow();
-
+    else
+    {
+        QMessageBox::critical(this, "ERROR", "Не указаны границы обновляемых записей!\n Пожалуйста, укажите!");
+        return;
+    }
     /* OLD_UPDATE
     //qDebug() << "44";
     if (Up_Table_Index == 0)
