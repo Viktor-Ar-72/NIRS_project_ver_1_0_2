@@ -32,6 +32,60 @@ int Del_Table_Index;
 void Dialog_SQL_Delete::changeIndex(int i)
 {    i++;    }
 
+
+void Dialog_SQL_Delete::on_pushButton_clicked()
+{
+
+    if (Del_Table_Index == 0)
+    {
+        //QString query_text = "INSERT INTO public.\"Students\" (student_id, full_name, student_group, variant) VALUES ('" + student_id + "'::integer, '" + full_name + "'::text, '" + student_group + "'::text, '" + variant + "'::integer) returning student_id;";
+        QString query_text = "DELETE FROM public.\"Students\" WHERE student_id IN (" + del_student_id + ");";
+        qDebug() << query_text;
+        QUERY_MODEL->setQuery(query_text);
+        qDebug() << "Success Delete query";
+    }
+    if (Del_Table_Index == 1)
+    {
+        //QString query_text = "INSERT INTO public.\"Students\" (student_id, full_name, student_group, variant) VALUES ('" + student_id + "'::integer, '" + full_name + "'::text, '" + student_group + "'::text, '" + variant + "'::integer) returning student_id;";
+        //QString query_text = "INSERT INTO public.\"Tasks\" (task_id, var_number, complication, task_text) VALUES ('" + task_id + "'::integer, '" + task_variant + "'::integer, '" + task_complication + "'::integer, '" + task_text + "'::text)returning task_id;";
+        //QString query_text = "DELETE FROM public.\"Tasks\" WHERE task_id IN (" + del_task_id + ");";
+        QString query_text = "DELETE FROM public.\"Tasks\" WHERE task_id IN (" + del_task_id + ");";
+        QUERY_MODEL->setQuery(query_text);
+    }
+
+    // Возврат к основному окну
+    // Временно закомменчено, чтобы не вылетала
+    // Раскомменчена - вылеты были не из - за этого
+    this->close();
+    emit DelWindow();
+}
+
+
+void Dialog_SQL_Delete::on_pushButton_2_clicked()
+{
+    del_student_id = ""; del_student_group = ""; del_full_name = "";
+    del_task_id = ""; del_task_text = ""; del_task_complication = "";
+    del_task_variant = "";
+    // Возврат к основному окну
+    this->close();
+    emit DelWindow();
+}
+
+void Dialog_SQL_Delete::on_tabWidget_Delete_tabBarClicked(int index)
+{
+    if(index == 0)
+    {
+        Del_Table_Index = 0;
+        qDebug() << "Удаление записи в таблице Students " << Del_Table_Index;
+    }
+    else if (index == 1)
+    {
+        Del_Table_Index = 1;
+        qDebug() << "Удаление записи в таблице Tasks " << Del_Table_Index;
+    }
+}
+
+/* OLD DELETE
 void Dialog_SQL_Delete::on_lineEdit_editingFinished()
 {
     del_student_id = ui->lineEdit->text();
@@ -117,47 +171,8 @@ void Dialog_SQL_Delete::on_lineEdit_3_editingFinished()
 //{
 //    variant = ui->lineEdit_4->text();
 //}
-
-
-void Dialog_SQL_Delete::on_pushButton_clicked()
-{
-
-    if (Del_Table_Index == 0)
-    {
-        //QString query_text = "INSERT INTO public.\"Students\" (student_id, full_name, student_group, variant) VALUES ('" + student_id + "'::integer, '" + full_name + "'::text, '" + student_group + "'::text, '" + variant + "'::integer) returning student_id;";
-        QString query_text = "DELETE FROM public.\"Students\" WHERE student_id IN (" + del_student_id + ");";
-        qDebug() << query_text;
-        QUERY_MODEL->setQuery(query_text);
-        qDebug() << "Success Delete query";
-    }
-    if (Del_Table_Index == 1)
-    {
-        //QString query_text = "INSERT INTO public.\"Students\" (student_id, full_name, student_group, variant) VALUES ('" + student_id + "'::integer, '" + full_name + "'::text, '" + student_group + "'::text, '" + variant + "'::integer) returning student_id;";
-        //QString query_text = "INSERT INTO public.\"Tasks\" (task_id, var_number, complication, task_text) VALUES ('" + task_id + "'::integer, '" + task_variant + "'::integer, '" + task_complication + "'::integer, '" + task_text + "'::text)returning task_id;";
-        //QString query_text = "DELETE FROM public.\"Tasks\" WHERE task_id IN (" + del_task_id + ");";
-        QString query_text = "DELETE FROM public.\"Tasks\" WHERE task_id IN (" + del_task_id + ");";
-        QUERY_MODEL->setQuery(query_text);
-    }
-
-    // Возврат к основному окну
-    // Временно закомменчено, чтобы не вылетала
-    // Раскомменчена - вылеты были не из - за этого
-    this->close();
-    emit DelWindow();
-}
-
-
-void Dialog_SQL_Delete::on_pushButton_2_clicked()
-{
-    del_student_id = ""; del_student_group = ""; del_full_name = "";
-    del_task_id = ""; del_task_text = ""; del_task_complication = "";
-    del_task_variant = "";
-    // Возврат к основному окну
-    this->close();
-    emit DelWindow();
-}
-
-
+*/
+/* OLD DELETE
 void Dialog_SQL_Delete::on_idTask_editingFinished()
 {
     del_task_id = ui->idTask->text();
@@ -233,19 +248,6 @@ void Dialog_SQL_Delete::on_taskText_editingFinished()
     }
 }
 
+*/
 
-
-void Dialog_SQL_Delete::on_tabWidget_Delete_tabBarClicked(int index)
-{
-    if(index == 0)
-    {
-        Del_Table_Index = 0;
-        qDebug() << "Удаление записи в таблице Students " << Del_Table_Index;
-    }
-    else if (index == 1)
-    {
-        Del_Table_Index = 1;
-        qDebug() << "Удаление записи в таблице Tasks " << Del_Table_Index;
-    }
-}
 
