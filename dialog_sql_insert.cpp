@@ -301,8 +301,13 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
      * Insert INTO public."TestTable_1" VALUES (34523, 54434, 'Hello', TRUE);
      * INSERT INTO public."TestTable_2" VALUES ('Text_1', 'Text_2', '\xABCDEF', 1.78);
      * DELETE FROM public."TestTable_2" WHERE "Column_Text_1" = 'Text_1' AND "Column_Text_2" = 'Text_2' AND "Column_ByteA" = '\xABCDEF' AND "Column_Real" = 1.78;
+     * MySQL
+     * INSERT INTO `testdatabasemysql`.`test_table_1` (`Column_Int_1`, `Column_Int_2`, `Column_Text`, `Column_Bool`) VALUES ('1', '1', 'Hello, world!', '1');
+     * DELETE FROM `testdatabasemysql`.`test_table_1` WHERE (`Column_Int_1` = '2');
      *
      *
+     **/
+    /*
     // Тесты
     //int test_int = 0;
     if (Insert_Fields_Number > 0)

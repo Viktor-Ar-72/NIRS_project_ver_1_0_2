@@ -463,8 +463,15 @@ WHERE "Column_Int_1" = 0
             // Не требуется, так как у нас не Insert - запрос
             //query_Update_text = query_Update_text.append(");");
             // Дополнение запроса Update
-            query_Update_text = query_Update_text + " WHERE " + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][0] + '"' + " = " + Update_Where_Values[V];
+            if ((Update_Matrix_Tables_FieldTypes[Update_Table_Index][0] == "int") || (Update_Matrix_Tables_FieldTypes[Update_Table_Index][0] == "bool") || (Update_Matrix_Tables_FieldTypes[Update_Table_Index][0] == "double"))
+            {
+                query_Update_text = query_Update_text + " WHERE " + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][0] + '"' + " = " + Update_Where_Values[V];
+            }
+            else
+            {
+                query_Update_text = query_Update_text + " WHERE " + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][0] + '"' + " = '" + Update_Where_Values[V] + "'";
 
+            }
             qDebug() << "Запрос на вставку" << V << query_Update_text;
             QFile file("output_Update_Query_Test.txt");
             if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {

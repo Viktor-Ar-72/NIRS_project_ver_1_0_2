@@ -630,6 +630,9 @@ void SQL_Window_Main::on_pushButton_4_clicked()
     Dialog_SQL_Insert().get_DB_connection_from_MainWindow(DB);
     Dialog_SQL_Insert().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes);
     // Переход на второе окно
+    // Иконка и подпись для окна Update
+    InsertWindow->setWindowIcon(QIcon("Exe_Icon_1.png"));
+    InsertWindow->setWindowTitle("Вставка данных");
     InsertWindow->show();
 
     // Закомментено, чтобы не закрывалось основное окно
@@ -666,6 +669,9 @@ void SQL_Window_Main::on_pushButton_5_clicked()
 {
     // Переход на окно удаления данных
     qDebug() << "Переход на окно удаления данных";
+    // Иконка и подпись для окна Update
+    DeleteWindow->setWindowIcon(QIcon("Exe_Icon_1.png"));
+    DeleteWindow->setWindowTitle("Удаление данных");
     DeleteWindow->show();
 }
 
@@ -748,6 +754,9 @@ void SQL_Window_Main::on_pushButton_7_clicked()
 
     // Переход на окно обновления данных
     qDebug() << "Переход на окно обновления данных";
+    // Иконка и подпись для окна Update
+    UpdateWindow->setWindowIcon(QIcon("Exe_Icon_1.png"));
+    UpdateWindow->setWindowTitle("Обновление данных");
     UpdateWindow->show();
 }
 
