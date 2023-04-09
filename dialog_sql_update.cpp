@@ -77,8 +77,13 @@ WHERE "Column_Int_1" = 0
      *
      */
 
+    QString query_text;
+    QSqlQueryModel Query_Test;
+    query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    Query_Test.setQuery(query_text);
+    int table_size = Query_Test.rowCount();
     //if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start) >= 0))
-    if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start + 1) > 0))
+    if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start + 1) > 0) && (Update_Fields_Finish < table_size))
     {
         // Создаём N-ое количество массивов, для каждого типа столбца текущей таблицы
         // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
@@ -482,8 +487,8 @@ WHERE "Column_Int_1" = 0
 
 
             // Если временно закомменчено - значит, происходит тест на обновление данных
-            //QUERY_MODEL->setQuery(query_Update_text);
-            //qDebug() << "Запрос на вставку" << V << "выполнен.";
+            QUERY_MODEL->setQuery(query_Update_text);
+            qDebug() << "Запрос на вставку" << V << "выполнен.";
         }
 
 
@@ -495,7 +500,7 @@ WHERE "Column_Int_1" = 0
 
         query_Update_text = ""; // Заглушка
         QUERY_MODEL->setQuery(query_Update_text);
-        // Закрытие окна вставки данных
+        // Закрытие окна обновления данных
         qDebug() << "Окно Update закрыто вместе с сохранением данных в таблицу";
         // Очистка массивов
         delete [] Update_int_mass;
@@ -773,15 +778,43 @@ void Dialog_SQL_Update::on_lineEdit_strok_start_editingFinished()
     }
     qDebug() << "Количество строк, которые хочет внести пользователь - " << Insert_Fields_Number;
     */
+    QString query_text;
+    QSqlQueryModel Query_Test;
+    query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    Query_Test.setQuery(query_text);
+    int r = Query_Test.rowCount();
     Update_Fields_Start = ui->lineEdit_strok_start->text().toInt();
-    qDebug() << "Номер строки, с которой нужно обновить данные - " << Update_Fields_Start;
+    if ((Update_Fields_Start > -1) && (Update_Fields_Start < r))
+    {
+        qDebug() << "Номер строки, с которой нужно обновить данные - " << Update_Fields_Start;
+    }
+    else
+    {
+        QMessageBox::critical(this, "ERROR", "Введен неправильный номер начальной строки! /n Пожалуйста, переопределите.");
+        ui->lineEdit_strok_start->clear();
+        Update_Fields_Start = NULL;
+    }
 }
 
 
 void Dialog_SQL_Update::on_lineEdit_strok_end_editingFinished()
 {
+    QString query_text;
+    QSqlQueryModel Query_Test;
+    query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    Query_Test.setQuery(query_text);
+    int r = Query_Test.rowCount();
     Update_Fields_Finish = ui->lineEdit_strok_end->text().toInt();
-    qDebug() << "Номер строки, до которой нужно обновить данные - " << Update_Fields_Finish;
+    if ((Update_Fields_Finish >= Update_Fields_Start) && (Update_Fields_Finish < r))
+    {
+        qDebug() << "Номер строки, до которой нужно обновить данные - " << Update_Fields_Finish;
+    }
+    else
+    {
+        QMessageBox::critical(this, "ERROR", "Введен неправильный номер конечной строки! /n Пожалуйста, переопределите.");
+        ui->lineEdit_strok_end->clear();
+        Update_Fields_Finish = NULL;
+    }
 }
 
 
@@ -823,7 +856,16 @@ void Dialog_SQL_Update::on_lineEdit_real_right_editingFinished()
 void Dialog_SQL_Update::on_lineEdit_bytea_lenght_editingFinished()
 {
     Update_byteA_lenght = ui->lineEdit_bytea_lenght->text().toInt();
-    qDebug() << "Полученная длина последовательности Bytea / Blob - " << Update_byteA_lenght;
+    if ((Update_byteA_lenght % 2) == 0)
+    {
+        qDebug() << "Полученная длина последовательности Bytea / Blob - " << Update_byteA_lenght;
+    }
+    else
+    {
+        QMessageBox::critical(this, "ERROR", "Внимание: длина генерируемой последовательности ByteA должна быть чётной!");
+        Update_byteA_lenght = NULL;
+        ui->lineEdit_bytea_lenght->clear();
+    }
 }
 
 
@@ -846,9 +888,17 @@ int* Dialog_SQL_Update::Up_VihrMersenna_Gen_Int(int* getted_rand_mass, int rasme
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
+    //std::mt19937_64 engine;
+    //std::random_device device;
+    //engine.seed(device());
+
+    //std::mt19937_64 engine(std::random_device{}());
+
+    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     for (int i = 0; i < rasmer; ++i)
     {
         getted_rand_mass[i] = gen_VM_left_edge + engine() % (gen_VM_right_edge + 1 - gen_VM_left_edge);
@@ -860,9 +910,17 @@ int* Dialog_SQL_Update::Up_VihrMersenna_Gen_Int(int* getted_rand_mass, int rasme
 int* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_Int(int* getted_rand_mass, int rasmer, int gen_MM_left_edge, int gen_MM_right_edge)
 {
     // Инициализация привязки устройства
+    //std::ranlux24 engine;
+    //std::random_device device;
+    //engine.seed(device());
+
+    //std::mt19937_64 engine(std::random_device{}());
+
+    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     // Инициализаций матрицы генератора
     int *matrix_3 = new int[1000];
     for (int i = 0; i < 1000; ++i)
@@ -887,9 +945,17 @@ double* Dialog_SQL_Update::Up_VihrMersenna_Gen_Real(double *getted_rand_mass, in
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
+    //std::mt19937_64 engine;
+    //std::random_device device;
+    //engine.seed(device());;
+
+    //std::mt19937_64 engine(std::random_device{}());
+
+    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
-    engine.seed(device());;
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     // Расчёт длины диапазона
     double range = gen_VM_right_edge - gen_VM_left_edge;
     for (int i = 0; i < rasmer; ++i)
@@ -904,9 +970,17 @@ double* Dialog_SQL_Update::Up_VihrMersenna_Gen_Real(double *getted_rand_mass, in
 double* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_Real(double *getted_rand_mass, int rasmer, double gen_MM_left_edge, double gen_MM_right_edge)
 {
     // Инициализация привязки устройства
+    //std::ranlux24 engine;
+    //std::random_device device;
+    //engine.seed(device());
+
+    //std::mt19937_64 engine(std::random_device{}());
+
+    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     // Генерация первых 2-х случайных чисел
     double u1 = engine() / double(engine.max());
     double u2 = engine() / double(engine.max());
@@ -938,9 +1012,17 @@ QString* Dialog_SQL_Update::Up_VihrMersenna_Gen_Char(QString *massiv_gen_numbers
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
+    //std::mt19937_64 engine;
+    //std::random_device device;
+    //engine.seed();
+
+    //std::mt19937_64 engine(std::random_device{}());
+
+    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
-    engine.seed();
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     int t = 0; bool r = 0; QString s;
     for (int i = 0; i < rasmer; ++i)
     {
@@ -971,9 +1053,17 @@ QString* Dialog_SQL_Update::Up_VihrMersenna_Gen_Char(QString *massiv_gen_numbers
 QString* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_Char(QString *massiv_gen_numbers, int rasmer, int length, int gen_MM_left_edge, int gen_MM_right_edge)
 {
     // Инициализация привязки устройства
+    //std::ranlux24 engine;
+    //std::random_device device;
+    //engine.seed(device());
+
+    //std::mt19937_64 engine(std::random_device{}());
+
+    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     // Инициализаций матрицы генератора
     int *matrix_3 = new int[1000];
     int init; bool r;
@@ -1030,9 +1120,17 @@ QString* Dialog_SQL_Update::Up_VihrMersenna_Gen_ByteA(QString *massiv_gen_number
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
+    //std::mt19937_64 engine;
+    //std::random_device device;
+    //engine.seed();
+
+    //std::mt19937_64 engine(std::random_device{}());
+
+    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
-    engine.seed();
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     int t = 0; bool r = 0; QString s;
     for (int i = 0; i < rasmer; ++i)
     {
@@ -1063,9 +1161,17 @@ QString* Dialog_SQL_Update::Up_VihrMersenna_Gen_ByteA(QString *massiv_gen_number
 QString* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_ByteA(QString *massiv_gen_numbers, int rasmer, int length, int gen_MM_left_edge, int gen_MM_right_edge)
 {
     // Инициализация привязки устройства
+    //std::ranlux24 engine;
+    //std::random_device device;
+    //engine.seed(device());
+
+    //std::mt19937_64 engine(std::random_device{}());
+
+    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     // Инициализаций матрицы генератора
     int *matrix_3 = new int[1000];
     int init; bool r;

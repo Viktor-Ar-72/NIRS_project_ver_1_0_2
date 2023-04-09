@@ -667,9 +667,23 @@ void SQL_Window_Main::on_pushButton_4_clicked()
 
 void SQL_Window_Main::on_pushButton_5_clicked()
 {
+    if(Current_Table_Number == 0)
+    {
+        // Значит, мы сейчас на таблице пользовательского запроса
+        QMessageBox::warning(this, "Warning", "Вы находитесь на таблице пользовательского запроса. /n Удаление данных будет осуществляться из первой таблицы базы данных.");
+        TABLE_MODEL = new QSqlTableModel(this, DB);
+        QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        QUERY_MODEL = new QSqlQueryModel();
+        QUERY_MODEL->setQuery(query_text);
+        ui->tableView->setModel(QUERY_MODEL);
+        Current_Table_Number = 1;
+    }
+
     // Переход на окно удаления данных
     qDebug() << "Переход на окно удаления данных";
-    // Иконка и подпись для окна Update
+    Dialog_SQL_Delete().get_DB_connection_from_MainWindow(DB);
+    Dialog_SQL_Delete().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes);
+    // Иконка и подпись для окна Delete
     DeleteWindow->setWindowIcon(QIcon("Exe_Icon_1.png"));
     DeleteWindow->setWindowTitle("Удаление данных");
     DeleteWindow->show();

@@ -1211,9 +1211,13 @@ int* Dialog_SQL_Insert::VihrMersenna_Gen_Int(int* getted_rand_mass, int rasmer, 
 
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
+    //std::mt19937_64 engine;
+    //std::random_device device;
+    //engine.seed(device());
+    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
     //int N = sizeof(getted_rand_mass)/sizeof(int);
     //int N = sizeof(getted_rand_mass) / sizeof(*getted_rand_mass);
     //int N = _countof(getted_rand_mass);
@@ -1233,9 +1237,13 @@ int* Dialog_SQL_Insert::VihrMersenna_Gen_Int(int* getted_rand_mass, int rasmer, 
 int* Dialog_SQL_Insert::MacLarenMarsalii_Gen_Int(int* getted_rand_mass, int rasmer, int gen_MM_left_edge, int gen_MM_right_edge)
 {
     // Инициализация привязки устройства
+    //std::ranlux24 engine;
+    //std::random_device device;
+    //engine.seed(device());
+    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
     // Инициализаций матрицы генератора
     int *matrix_3 = new int[1000];
     for (int i = 0; i < 1000; ++i)
@@ -1313,9 +1321,13 @@ double* Dialog_SQL_Insert::MacLarenMarsalii_Gen_Real(double *getted_rand_mass, i
     */
     // Вариант от ПЗЕ4
     // Инициализация привязки устройства
+    //std::ranlux24 engine;
+    //std::random_device device;
+    //engine.seed(device());
+    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 
     // Генерация первых 2-х случайных чисел
     double u1 = engine() / double(engine.max());
@@ -1360,9 +1372,13 @@ QString* Dialog_SQL_Insert::VihrMersenna_Gen_Char(QString *massiv_gen_numbers, i
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
+    //std::mt19937_64 engine;
+    //std::random_device device;
+    //engine.seed();
+    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
-    engine.seed();
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
     int t = 0; bool r = 0; QString s;
     for (int i = 0; i < rasmer; ++i)
     {
@@ -1395,9 +1411,13 @@ QString* Dialog_SQL_Insert::VihrMersenna_Gen_Char(QString *massiv_gen_numbers, i
 QString* Dialog_SQL_Insert::MacLarenMarsalii_Gen_Char(QString *massiv_gen_numbers, int rasmer, int length, int gen_MM_left_edge, int gen_MM_right_edge)
 {
     // Инициализация привязки устройства
+    //std::ranlux24 engine;
+    //std::random_device device;
+    //engine.seed(device());
+    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
     // Инициализаций матрицы генератора
     int *matrix_3 = new int[1000];
     int init; bool r;
@@ -1471,9 +1491,13 @@ QString* Dialog_SQL_Insert::VihrMersenna_Gen_ByteA(QString *massiv_gen_numbers, 
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
+    //std::mt19937_64 engine;
+    //std::random_device device;
+    //engine.seed();
+    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
-    engine.seed();
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
     int t = 0; bool r = 0; QString s;
     for (int i = 0; i < rasmer; ++i)
     {
@@ -1514,9 +1538,15 @@ QString* Dialog_SQL_Insert::VihrMersenna_Gen_ByteA(QString *massiv_gen_numbers, 
 QString* Dialog_SQL_Insert::MacLarenMarsalii_Gen_ByteA(QString *massiv_gen_numbers, int rasmer, int length, int gen_MM_left_edge, int gen_MM_right_edge)
 {
     // Инициализация привязки устройства
+    //std::ranlux24 engine;
+    //std::random_device device;
+    //engine.seed(device());
+
+    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
-    engine.seed(device());
+    engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
     // Инициализаций матрицы генератора
     int *matrix_3 = new int[1000];
     int init; bool r;

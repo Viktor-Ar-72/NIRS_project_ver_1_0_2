@@ -23,15 +23,19 @@ public:
     explicit Dialog_SQL_Delete(QWidget *parent = nullptr);
     ~Dialog_SQL_Delete();
 
+    // Функции для инициализации
+    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types);
+    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data);
+
 signals:
     // Подключение окна InsertWindow
     void DelWindow();
 
 private slots:
 
-    void on_pushButton_clicked();
+    void on_pushButton_OK_clicked();
 
-    void on_pushButton_2_clicked();
+    void on_pushButton_Esc_clicked();
 
     void on_tabWidget_Delete_tabBarClicked(int index);
 
@@ -54,6 +58,10 @@ private slots:
 
     //void on_taskVariant_editingFinished();
 */
+
+    void on_lineEdit_strok_start_editingFinished();
+
+    void on_lineEdit_strok_end_editingFinished();
 
 private:
     Ui::Dialog_SQL_Delete *ui;
