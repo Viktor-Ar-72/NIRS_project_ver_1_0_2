@@ -305,7 +305,9 @@ void SQL_Window_Main::on_comboBox_activated(int index)
             /* Test, если закомменчено */
             TABLE_MODEL = new QSqlTableModel(this, DB);
             //QString query_text = "SELECT * FROM public.\"Students\" ORDER BY student_id";
-            query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+            //query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+            // Вывод с сортировкой по первому столбцу
+            query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\" ORDER BY" + '"' + Matrix_Tables_FieldNames[0][0] + '"';
             QUERY_MODEL = new QSqlQueryModel();
             QUERY_MODEL->setQuery(query_text);
             ui->tableView->setModel(QUERY_MODEL);
@@ -449,7 +451,9 @@ void SQL_Window_Main::on_pushButton_2_clicked()
             qDebug() << "Текущий индекс - " << Current_Table_Number;
 
             TABLE_MODEL = new QSqlTableModel(this, DB);
-            QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[Current_Table_Number - 1] + "\"";
+            //QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[Current_Table_Number - 1] + "\"";
+            // Вывод с сортировкой по первому столбцу
+            QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[Current_Table_Number - 1] + "\" ORDER BY" + '"' + Matrix_Tables_FieldNames[Current_Table_Number - 1][0] + '"';
             QUERY_MODEL = new QSqlQueryModel();
             QUERY_MODEL->setQuery(query_text);
             ui->tableView->setModel(QUERY_MODEL);
@@ -593,7 +597,9 @@ void SQL_Window_Main::on_pushButton_3_clicked()
             qDebug() << "Текущий индекс - " << Current_Table_Number;
 
             TABLE_MODEL = new QSqlTableModel(this, DB);
-            QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[Current_Table_Number - 1] + "\"";
+            //QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[Current_Table_Number - 1] + "\"";
+            // Вывод с сортировкой по певому столбцу
+            QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[Current_Table_Number - 1] + "\" ORDER BY" + '"' + Matrix_Tables_FieldNames[Current_Table_Number - 1][0] + '"';
             QUERY_MODEL = new QSqlQueryModel();
             QUERY_MODEL->setQuery(query_text);
             ui->tableView->setModel(QUERY_MODEL);

@@ -134,8 +134,8 @@ void Dialog_SQL_Delete::on_pushButton_OK_clicked()
 
 
             // Если временно закомменчено - значит, происходит тест на обновление данных
-            //QUERY_MODEL->setQuery(query_Delete_text);
-            //qDebug() << "Запрос на удаление" << V << "выполнен.";
+            QUERY_MODEL->setQuery(query_Delete_text);
+            qDebug() << "Запрос на удаление" << V << "выполнен.";
         }
 
 
