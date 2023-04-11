@@ -109,7 +109,8 @@ void FirstFileBrowser::showFileInfoList(QFileInfoList pInfoList)
         // Попытка, чтобы не выводил файлы определённого типа
         if (object_name.contains(".exe") || object_name.contains(".jpg") || object_name.contains(".docx")
                 || object_name.contains(".pdf") || object_name.contains(".doc") || object_name.contains(".xlsx")
-                || object_name.contains(".zip") || object_name.contains(".png") || object_name.contains(".pptx"))
+                || object_name.contains(".zip") || object_name.contains(".png") || object_name.contains(".pptx")
+                || object_name.contains(".m4a") || (object_name.contains(".rar")))
         {
             continue;
         }

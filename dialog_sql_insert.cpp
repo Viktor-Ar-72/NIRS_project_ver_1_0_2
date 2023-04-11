@@ -504,7 +504,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         {
             // Заполнение генератора Varchar
                     //if ((Insert_int_left != Insert_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != ""))
-                    if(Insert_varchar_lenght != 0)
+                    if(Insert_varchar_lenght > 0)
                     {
                         if(GenType == 1)
                         {
@@ -526,7 +526,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
                     }
                     else
                     {
-                        QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности VARCHAR!\n Пожалуйста, переопределите!");
+                        QMessageBox::critical(this, "ERROR", "Неправильно указан размер последовательности VARCHAR!\n Пожалуйста, переопределите!");
                         return;
                     }
         }
@@ -574,7 +574,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         if (bytea_use == 'y')
         {
             //qDebug() << "Будет использоватьмся массив byteA";
-            if(Insert_byteA_lenght != 0)
+            if((Insert_byteA_lenght > 0) && ((Insert_byteA_lenght % 2) == 0))
             {
                 if(GenType == 1)
                 {
@@ -596,7 +596,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
             }
             else
             {
-                QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности BYTEA!\n Пожалуйста, переопределите!");
+                QMessageBox::critical(this, "ERROR", "Неправильно указан размер последовательности BYTEA!\n Пожалуйста, переопределите!");
                 return;
             }
         }

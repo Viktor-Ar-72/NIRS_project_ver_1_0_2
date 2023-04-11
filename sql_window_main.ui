@@ -116,21 +116,21 @@
      <item>
       <widget class="QPushButton" name="pushButton_4">
        <property name="text">
-        <string>Добавить запись</string>
+        <string>Добавить записи</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_5">
        <property name="text">
-        <string>Удалить запись</string>
+        <string>Удалить записи</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_7">
        <property name="text">
-        <string>Обновить запись</string>
+        <string>Обновить записи</string>
        </property>
       </widget>
      </item>
