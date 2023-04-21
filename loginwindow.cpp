@@ -233,28 +233,92 @@ void LoginWindow::on_pushButton_clicked()
     }
     if (DB_Login_Type == 1)
     {
-        DB_login = QSqlDatabase::addDatabase("QMYSQL", "QMySQL_Database_Connection");
-        // Настройка адреса хоста
-        if((ui->host_input_MySQL->text()).isEmpty())
+        if (!(ui->checkBox->isChecked()))
         {
-            DB_login.setHostName("127.0.0.1");
+            DB_login = QSqlDatabase::addDatabase("QMYSQL", "QMySQL_Database_Connection");
+            // Настройка адреса хоста
+            if((ui->host_input_MySQL->text()).isEmpty())
+            {
+                DB_login.setHostName("127.0.0.1");
+            }
+            else
+            {
+                DB_login.setHostName(ui->host_input_MySQL->text());
+            }
+            // Настройка рабочего порта - не требуется для MySQL
+            // Видимо, всё - таки требуется
+            DB_login.setPort(3306);
+            // Настройка имени базы данных
+            DB_login.setDatabaseName(ui->BD_name_MySQL->text());
+            // Настройка имени пользователя
+            DB_login.setUserName(ui->login_line_MySQL->text());
+            // Настройка пароля
+            DB_login.setPassword(ui->password_input_MySQL->text());
+            qDebug() << ui->host_input_MySQL->text() << ui->BD_name_MySQL->text()
+                     << ui->login_line_MySQL->text() << ui->password_input_MySQL->text();
         }
         else
         {
-            DB_login.setHostName(ui->host_input_MySQL->text());
+            DB_login = QSqlDatabase::addDatabase("QMYSQL", "QMySQL_Database_Connection");
+            // Запрос из файла
+            std::string File_Line;
+            QString InformToAccess;
+            // Открытие файла
+            std::string File_Address = BD_File_Address.toUtf8().constData();
+            // Корректировка адреса файлов
+            qDebug() << "Адрес до корректировки - " << File_Address.c_str();
+            File_Address = std::regex_replace(File_Address, std::regex(":/"), "://");
+            File_Address.pop_back(); // Убрать последний символ "/"
+            qDebug() << "Адрес после корректировки - " << File_Address.c_str();
+            std::ifstream MySQLFile(File_Address);
+            if (MySQLFile.is_open())
+            {
+                    // Считывание адреса
+                    MySQLFile >> File_Line;
+                    File_Line.erase(0, 13);
+                    File_Line.erase(File_Line.find(">"), 1);
+                    InformToAccess = QString::fromUtf8(File_Line.c_str());
+                    qDebug() << InformToAccess;
+                    DB_login.setHostName(InformToAccess);
+
+                    // Считывание порта
+                    MySQLFile >> File_Line;
+                    File_Line.erase(0, 13);
+                    File_Line.erase(File_Line.find(">"), 1);
+                    InformToAccess = QString::fromUtf8(File_Line.c_str());
+                    qDebug() << InformToAccess;
+                    DB_login.setPort(InformToAccess.toInt());
+
+                    // Считывание имени БД
+                    MySQLFile >> File_Line;
+                    File_Line.erase(0, 17);
+                    File_Line.erase(File_Line.find(">"), 1);
+                    InformToAccess = QString::fromUtf8(File_Line.c_str());
+                    qDebug() << InformToAccess;
+                    DB_login.setDatabaseName(InformToAccess);
+
+                    // Считывание имени пользователя
+                    MySQLFile >> File_Line;
+                    File_Line.erase(0, 18);
+                    File_Line.erase(File_Line.find(">"), 1);
+                    InformToAccess = QString::fromUtf8(File_Line.c_str());
+                    qDebug() << InformToAccess;
+                    DB_login.setUserName(InformToAccess);
+
+                    // Считывание пароля пользователя
+                    MySQLFile >> File_Line;
+                    File_Line.erase(0, 21);
+                    File_Line.erase(File_Line.find(">"), 1);
+                    InformToAccess = QString::fromUtf8(File_Line.c_str());
+                    qDebug() << InformToAccess;
+                    DB_login.setPassword(InformToAccess);
+                    MySQLFile.close();
+            }
+            else
+            {
+                QMessageBox::critical(this, "ERROR", "Ошибка открытия файла конфигурации.\n Проверьте правильность выбранного файла");
+            }
         }
-        // Настройка рабочего порта - не требуется для MySQL
-        // Настройка имени базы данных
-        // DB.setDatabaseName("NIRS_Test_Database");
-        DB_login.setDatabaseName(ui->BD_name_MySQL->text());
-        // Настройка имени пользователя
-        // DB.setUserName("DatabaseUser");
-        DB_login.setUserName(ui->login_line_MySQL->text());
-        // Настройка пароля
-        // DB.setPassword("adminpassword4");
-        DB_login.setPassword(ui->password_input_MySQL->text());
-        qDebug() << ui->host_input_MySQL->text() << ui->BD_name_MySQL->text()
-                 << ui->login_line_MySQL->text() << ui->password_input_MySQL->text();
         if(DB_login.open())
         {
             qDebug("MySQL_Database_is_open");
@@ -267,6 +331,57 @@ void LoginWindow::on_pushButton_clicked()
             // Чтобы лучше узнать, в чём ошибка
             qDebug() << DB_login.lastError();
             QMessageBox::critical(this, "ERROR", "Ошибка подключения к базе данных MySQL\n" + DB_login.lastError().databaseText() + "\n" + DB_login.lastError().driverText());
+        }
+    }
+    if (DB_Login_Type == 2)
+    {
+        QString InformAccess;
+        std::string line;
+        DB_login = QSqlDatabase::addDatabase("QODBC");
+        // Указание файла для открытия
+        //std::ifstream AccessFile("D://NIRS_Projects/Access_access.txt");
+        std::string File_Address = BD_File_Address.toUtf8().constData();
+        // Корректировка адреса файлов
+        qDebug() << "Адрес до корректировки - " << File_Address.c_str();
+        //std::string test = "abc def abc def";
+        //test = std::regex_replace(test, std::regex("def"), "klm"); // replace 'def' -> 'klm'
+        File_Address = std::regex_replace(File_Address, std::regex(":/"), "://");
+        File_Address.pop_back(); // Убрать последний символ "/"
+        qDebug() << "Адрес после корректировки - " << File_Address.c_str();
+        std::ifstream AccessFile(File_Address);
+        if (AccessFile.is_open())
+        {
+            while(!AccessFile.eof())
+            {
+                AccessFile >> line;
+                InformAccess = InformAccess.append(QString::fromUtf8(line.c_str()));
+                InformAccess = InformAccess.append(" ");
+            }
+            qDebug() << InformAccess;
+            InformAccess.resize(InformAccess.size() - 1);
+
+        }
+        else
+        {
+            qDebug() << "ERROR: File is not open";
+            QMessageBox::critical(this, "ERROR", "Файл не был обнаружен или открыт.\n Проверьте местоположение и свойства файла");
+        }
+        qDebug() << InformAccess;
+        //DB.setDatabaseName("DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};FIL={MS Access};DBQ=C://Users/VArutin/Documents/Database11_Test.accdb");
+        DB_login.setDatabaseName(InformAccess);
+        // Настройки для личного ПК
+        //DB.setDatabaseName("DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};FIL={MS Access};DBQ=D:/Work/BD_all/Database11.mdb");
+        if(DB_login.open())
+        {
+            qDebug("Подключен Microsoft Access");
+            SQLWindow->show();
+            this->close();
+        }
+        else
+        {
+            qDebug() << DB_login.lastError();
+            QMessageBox::critical(this, "ERROR", "Ошибка при открытии базы данных Microsoft Access");
+            QMessageBox::critical(this, "ERROR", DB_login.lastError().databaseText() + "\n" + DB_login.lastError().driverText());
         }
     }
 }
@@ -369,5 +484,67 @@ void LoginWindow::on_checkBox_stateChanged(int arg1)
         ui->lineEdit_adress_now->setText("Файл не используется");
     }
 
+}
+
+
+void LoginWindow::on_pushButton_MySQL_clicked()
+{
+    qDebug() << "File browser for MySQL config file opened";
+    // Настройка интерфейса файлового браузера
+    FirstBrowser->setWindowIcon(QIcon("Exe_Icon_1.png"));
+    FirstBrowser->setWindowTitle("Файловый браузер");
+    FirstBrowser->show();
+}
+
+
+void LoginWindow::on_pushButton_ODBC_clicked()
+{
+    qDebug() << "File browser for Microsoft Access config file opened";
+    // Настройка интерфейса файлового браузера
+    FirstBrowser->setWindowIcon(QIcon("Exe_Icon_1.png"));
+    FirstBrowser->setWindowTitle("Файловый браузер");
+    FirstBrowser->show();
+
+    /* Полный процесс подключения
+    QString InformAccess;
+    std::string line;
+    QSqlDatabase DB = QSqlDatabase::addDatabase("QODBC");
+    // Указание файла для открытия
+    std::ifstream AccessFile("D://NIRS_Projects/Access_access.txt");
+    if (AccessFile.is_open())
+    {
+        while(!AccessFile.eof())
+        {
+            AccessFile >> line;
+            InformAccess = InformAccess.append(QString::fromUtf8(line.c_str()));
+            InformAccess = InformAccess.append(" ");
+        }
+        qDebug() << InformAccess;
+        InformAccess.resize(InformAccess.size() - 1);
+
+    }
+    else
+    {
+        qDebug() << "ERROR: File is not open";
+        QMessageBox::critical(this, "ERROR", "Файл не был обнаружен или открыт.\n Проверьте местоположение и свойства файла");
+    }
+    qDebug() << InformAccess;
+    //DB.setDatabaseName("DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};FIL={MS Access};DBQ=C://Users/VArutin/Documents/Database11_Test.accdb");
+    DB.setDatabaseName(InformAccess);
+    // Настройки для личного ПК
+    //DB.setDatabaseName("DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};FIL={MS Access};DBQ=D:/Work/BD_all/Database11.mdb");
+    if(DB.open())
+    {
+        qDebug("Подключен Microsoft Access");
+        SQLWindow->show();
+        this->close();
+    }
+    else
+    {
+        qDebug() << DB.lastError();
+        QMessageBox::critical(this, "ERROR", "Ошибка при открытии базы данных Microsoft Access");
+        QMessageBox::critical(this, "ERROR", DB.lastError().databaseText() + "\n" + DB.lastError().driverText());
+    }
+    */
 }
 

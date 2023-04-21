@@ -49,6 +49,11 @@ private slots:
     // Вызов чек-бокса для демонстрации, из файла ли будут взяты данные подключения
     void on_checkBox_stateChanged(int arg1);
 
+    // Открытие файлового браузера для файла конфигурации MySQL
+    void on_pushButton_MySQL_clicked();
+
+    void on_pushButton_ODBC_clicked();
+
 private:
     Ui::LoginWindow *ui;
     // Инициализация окна файлового браузера
