@@ -8,13 +8,15 @@ using namespace std;
 // Для работы с базами данных
 QString Global_String_Querry;
 int Current_Table_Number = 0;
-int Current_BD_Type = 0;
+//int Current_BD_Type = 0;
 
 
 // Для передачи данных для подключения из базы данных
 QString Transfer_DB_Adress, Transfer_DB_Name, Transfer_DB_User, Transfer_DB_Password; int Transfer_DB_Port;
 // Список таблиц
 QStringList BD_Tables_List_Asked;
+// Тип текущей базы данных
+int DATABASE_Type;
 // Массив с типами полей каждой таблицы по номеру
 //QString Matrix_Tables_Types = new QString [][];
 //QString **Test_Mas;
@@ -87,20 +89,22 @@ void SQL_Window_Main::changeIndex(int i)
 
 void SQL_Window_Main::on_comboBox_activated(int index)
 {
-    // Строка для запроса из файлов
-    std::string line;
-
-    if (index == 0)
+    if (DATABASE_Type == 0)
     {
-        //qDebug() << "Тут пока пусто" << endl;
-        Current_BD_Type = 0;
+        // Строка для запроса из файлов
+        std::string line;
 
-        //DB.close();
-        //qDebug() << "Подключение к Microsoft Access закрыто";
-        //QMessageBox::warning(this, "Уведомление", "Подключение к базе данных Microsoft Access закрыто");
-        //QMessageBox::information(this, "Уведомление", "Подключение к базе данных Microsoft Access закрыто");
+        if (index == 0)
+        {
+            //qDebug() << "Тут пока пусто" << endl;
+            //Current_BD_Type = 0;
 
-        /* Old realizations
+            //DB.close();
+            //qDebug() << "Подключение к Microsoft Access закрыто";
+            //QMessageBox::warning(this, "Уведомление", "Подключение к базе данных Microsoft Access закрыто");
+            //QMessageBox::information(this, "Уведомление", "Подключение к базе данных Microsoft Access закрыто");
+
+            /* Old realizations
         // Подключение драйвера БД
         DB = QSqlDatabase::addDatabase("QPSQL");
         // Вариант с запросом из файла
@@ -168,26 +172,26 @@ void SQL_Window_Main::on_comboBox_activated(int index)
         }
         */
 
-        /* Заглушка - потому что непонятно, почему в LoginWindow БД открыта, а здесь нет
+            /* Заглушка - потому что непонятно, почему в LoginWindow БД открыта, а здесь нет
         qDebug() << "Заглушка";
         DB = QSqlDatabase::addDatabase("QPSQL");
         DB.setHostName("127.0.0.1"); DB.setPort(5432); DB.setDatabaseName("NIRS_Test_Database");
         DB.setUserName("DatabaseUser"); DB.setPassword("adminpassword4");
         */
 
-        qDebug() << "Проверка на открытие файла с запрошенными параметрами";
-        DB = QSqlDatabase::addDatabase("QPSQL");
-        DB.setHostName(Transfer_DB_Adress);
-        DB.setPort(Transfer_DB_Port);
-        DB.setDatabaseName(Transfer_DB_Name);
-        DB.setUserName(Transfer_DB_User);
-        DB.setPassword(Transfer_DB_Password);
-        // Это точно работает
+            qDebug() << "Проверка на открытие файла с запрошенными параметрами";
+            DB = QSqlDatabase::addDatabase("QPSQL");
+            DB.setHostName(Transfer_DB_Adress);
+            DB.setPort(Transfer_DB_Port);
+            DB.setDatabaseName(Transfer_DB_Name);
+            DB.setUserName(Transfer_DB_User);
+            DB.setPassword(Transfer_DB_Password);
+            // Это точно работает
 
-        qDebug() << DB;
-        if (DB.open())
-        {
-            /* Old database opening
+            qDebug() << DB;
+            if (DB.open())
+            {
+                /* Old database opening
             TABLE_MODEL = new QSqlTableModel(this, DB);
             QString query_text = "SELECT * FROM public.\"Students\" ORDER BY student_id";
             QUERY_MODEL = new QSqlQueryModel();
@@ -195,11 +199,303 @@ void SQL_Window_Main::on_comboBox_activated(int index)
             ui->tableView->setModel(QUERY_MODEL);
             Current_Table_Number = 0;
             */
-            qDebug() << "База данных точно открыта";
+                qDebug() << "База данных PostgreSQL точно открыта";
 
-            // Это будет получение данных о таблицах открытой БД
-            // Для начала - список таблиц
-            // QStringList BD_Tables_List_Asked = DB.tables();
+                // Это будет получение данных о таблицах открытой БД
+                // Для начала - список таблиц
+                // QStringList BD_Tables_List_Asked = DB.tables();
+                BD_Tables_List_Asked = DB.tables();
+                qDebug() << "Таблицы базы данных без сортировки - " << BD_Tables_List_Asked;
+                // Сортировка имен таблиц в списке по возрастанию имен
+                BD_Tables_List_Asked.sort();
+                qDebug() << "Таблицы базы данных после сортировки - " << BD_Tables_List_Asked;
+                // Получение данных о типах столбцов таблиц
+                QString query_text;
+                QSqlRecord Record_Test;
+                QSqlQuery Query_Test;
+                //QSqlField Test_Field;
+
+                QString **Temp_Matrix_Tables_FieldTypes = new QString* [BD_Tables_List_Asked.count()];
+                QString **Temp_Matrix_Tables_FieldNames = new QString* [BD_Tables_List_Asked.count()];
+                //Test_Mas = new QString* [BD_Tables_List_Asked.count()];
+                Matrix_Tables_FieldNames = new QString* [BD_Tables_List_Asked.count()];
+                Matrix_Tables_FieldTypes = new QString* [BD_Tables_List_Asked.count()];
+
+                for (int i = 0; i < BD_Tables_List_Asked.size(); ++i)
+                {
+                    query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[i] + "\"";
+                    Query_Test.exec(query_text);
+                    Record_Test = Query_Test.record();
+                    qDebug() << "В таблице " << BD_Tables_List_Asked[i] << " количество столбцов = " << Record_Test.count();
+
+                    //Matrix_Tables_FieldTypes[i] = new QString [Record_Test.count()];
+                    //Matrix_Tables_FieldNames[i] = new QString [Record_Test.count()];
+                    //Test_Mas[i] = new QString [Record_Test.count()];
+                    Temp_Matrix_Tables_FieldTypes[i] = new QString [Record_Test.count()];
+                    Temp_Matrix_Tables_FieldNames[i] = new QString [Record_Test.count()];
+
+                    // Передача данных в глобальный массив
+                    Matrix_Tables_FieldTypes[i] = new QString [Record_Test.count()];
+                    Matrix_Tables_FieldNames[i] = new QString [Record_Test.count()];
+                    Matrix_Tables_FieldNames[i] = Temp_Matrix_Tables_FieldNames[i];
+                    Matrix_Tables_FieldTypes[i] = Temp_Matrix_Tables_FieldTypes[i];
+
+
+                    qDebug() << "Имеются следующие столбцы:";
+                    for(int j = 0; j < Record_Test.count(); ++j)
+                    {
+                        //qDebug() << "Имя поля: " << Record_Test.fieldName(j) << "; Тип: " << Record_Test.field(j).type();
+
+                        //Matrix_Tables_FieldNames[i][j] = Record_Test.fieldName(j);
+                        Temp_Matrix_Tables_FieldNames[i][j] = Record_Test.fieldName(j);
+                        Matrix_Tables_FieldNames[i][j] = Record_Test.fieldName(j);
+
+                        /* Old
+                    //Test_Mas[i][j] = Record_Test.fieldName(j);
+                    // Не очень пока - надо найти способ QVariant в QString
+                    //Matrix_Tables_Types[i][j] = Record_Test.field(j).type(); QString::fromUtf8(line.c_str());
+                    //string temp = to_string(Record_Test.field(j).type());
+                    //Matrix_Tables_FieldTypes[i][j] = QString::fromUtf8(temp.c_str());
+                    */
+
+                        int temp = int(Record_Test.field(j).type());
+                        // Теперь получается так:
+                        // INT == int == "2"
+                        // VARCHAR == TEXT == QString == "10"
+                        // BOOLEAN == bool == "1"
+                        // REAL == double == "6"
+                        // BYTEA == ByteA == ("\f"== "12")
+                        switch (temp)
+                        {
+                        case (1):
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "bool";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        case (2):
+                            //Matrix_Tables_FieldTypes[i][j] = "int";
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "int";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        case (10):
+                            //Matrix_Tables_FieldTypes[i][j] = "QString";
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "QString";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        case (6):
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "double";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        case (12):
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "ByteA";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        default:
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "Unknown type. Code: " + QString(temp);
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        }
+                        // Теперь вроде норм работает
+                        //qDebug() << "Имя поля: " << Matrix_Tables_FieldNames[i][j] << "; Тип: " << Matrix_Tables_FieldTypes[i][j];
+                        qDebug() << "Имя поля: " << Temp_Matrix_Tables_FieldNames[i][j] << "; Тип: " << Temp_Matrix_Tables_FieldTypes[i][j];
+                        qDebug() << "Глобальное имя поля: " << Matrix_Tables_FieldNames[i][j] << "; Глобальный тип поля " <<Matrix_Tables_FieldTypes[i][j];
+                    }
+                    qDebug() << "";
+                }
+
+                // Очистка памяти от временного локального массива
+                delete [] Temp_Matrix_Tables_FieldNames;
+                delete [] Temp_Matrix_Tables_FieldTypes;
+
+                /* Test, если закомменчено */
+                TABLE_MODEL = new QSqlTableModel(this, DB);
+                //QString query_text = "SELECT * FROM public.\"Students\" ORDER BY student_id";
+                //query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+                // Вывод с сортировкой по первому столбцу
+                query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\" ORDER BY" + '"' + Matrix_Tables_FieldNames[0][0] + '"';
+                QUERY_MODEL = new QSqlQueryModel();
+                QUERY_MODEL->setQuery(query_text);
+                ui->tableView->setModel(QUERY_MODEL);
+                // Вывод на 1 позицию в списке таблиц (0 занята под пользовательские запросы)
+                //Current_Table_Number = 0;
+                Current_Table_Number = 1;
+                // Тест - вывод индексов таблиц в списке
+                int i = 0;
+                while (i != BD_Tables_List_Asked.count())
+                {
+                    qDebug() << "По индексу " << i << " находится таблица " << BD_Tables_List_Asked[i];
+                    i += 1;
+                }
+                qDebug() << "BD_List_Tables_Count == " << BD_Tables_List_Asked.count();
+            }
+            else
+            {
+                qDebug() << "ERROR!" << DB.lastError();
+            }
+
+            // Тест на создание всплывающих подсказок
+            // ui->tableView->setToolTip("Всплывающая подсказка 1");
+            // Работает, поэтому дальше будут основные подсказки
+            //ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number] + " подключённой базы данных");
+            ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number - 1] + " подключённой базы данных");
+        }
+        if(index == 1)
+        {
+            //QMessageBox::information(this, "Уведомление", "Функция временно недоступна");
+
+            // Вывод списка таблиц базы данных PostgreSQL
+            TABLE_MODEL = new QSqlTableModel(this, DB);
+            QString query_text;
+            //Не работает query_text = "SHOW TABLES";
+            // Вывод имён баз данных текущего сервера query_text = "SELECT datname FROM pg_database;";
+
+            // Рабочий, выводит имена таблиц
+            //query_text = "SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');";
+
+            // Тест на вывод более подробной информации о таблицах
+            //query_text = "SELECT relname, relcrdate FROM pg_class WHERE relkind = 'r' AND relname NOT LIKE 'pg_%' AND relname NOT LIKE 'sql_%' ORDER BY relname;";
+            query_text = "SELECT relid, relname AS Table_name, schemaname AS Schema_type, seq_tup_read AS Read_count, n_tup_ins AS Insert_count, n_tup_upd AS Update_count, n_tup_del AS Delete_count, n_live_tup, idx_scan, idx_tup_fetch FROM pg_stat_user_tables ORDER BY Table_name";
+
+            qDebug() << query_text;
+            QUERY_MODEL = new QSqlQueryModel();
+            QUERY_MODEL->setQuery(query_text);
+            ui->tableView->setModel(QUERY_MODEL);
+            qDebug() << "Список доступных таблиц";
+        }
+    }
+
+    if (DATABASE_Type == 2)
+    {
+        if (index == 0)
+        {
+            qDebug() << "Проверка на открытие файла с запрошенными параметрами";
+            DB = QSqlDatabase::addDatabase("QODBC");
+            //DB.setHostName(Transfer_DB_Adress);
+            //DB.setPort(Transfer_DB_Port);
+            DB.setDatabaseName(Transfer_DB_Name);
+            //DB.setUserName(Transfer_DB_User);
+            //DB.setPassword(Transfer_DB_Password);
+            // Это точно работает
+            qDebug() << DB;
+            if (DB.open())
+            {
+                qDebug() << "База данных Access открыта прям точно";
+                BD_Tables_List_Asked = DB.tables();
+                qDebug() << "Таблицы базы данных без сортировки - " << BD_Tables_List_Asked;
+                // Сортировка имен таблиц в списке по возрастанию имен
+                BD_Tables_List_Asked.sort();
+                qDebug() << "Таблицы базы данных после сортировки - " << BD_Tables_List_Asked;
+                // Получение данных о типах столбцов таблиц
+                QString query_text;
+                QSqlRecord Record_Test;
+                QSqlQuery Query_Test;
+
+                QString **Temp_Matrix_Tables_FieldTypes = new QString* [BD_Tables_List_Asked.count()];
+                QString **Temp_Matrix_Tables_FieldNames = new QString* [BD_Tables_List_Asked.count()];
+                //Test_Mas = new QString* [BD_Tables_List_Asked.count()];
+                Matrix_Tables_FieldNames = new QString* [BD_Tables_List_Asked.count()];
+                Matrix_Tables_FieldTypes = new QString* [BD_Tables_List_Asked.count()];
+
+                for (int i = 0; i < BD_Tables_List_Asked.size(); ++i)
+                {
+                    query_text = "SELECT * FROM " + BD_Tables_List_Asked[i] + ";";
+                    Query_Test.exec(query_text);
+                    Record_Test = Query_Test.record();
+                    qDebug() << "В таблице " << BD_Tables_List_Asked[i] << " количество столбцов = " << Record_Test.count();
+
+                    Temp_Matrix_Tables_FieldTypes[i] = new QString [Record_Test.count()];
+                    Temp_Matrix_Tables_FieldNames[i] = new QString [Record_Test.count()];
+
+                    // Передача данных в глобальный массив
+                    Matrix_Tables_FieldTypes[i] = new QString [Record_Test.count()];
+                    Matrix_Tables_FieldNames[i] = new QString [Record_Test.count()];
+                    Matrix_Tables_FieldNames[i] = Temp_Matrix_Tables_FieldNames[i];
+                    Matrix_Tables_FieldTypes[i] = Temp_Matrix_Tables_FieldTypes[i];
+                    qDebug() << "Имеются следующие столбцы:";
+                    for(int j = 0; j < Record_Test.count(); ++j)
+                    {
+                        Temp_Matrix_Tables_FieldNames[i][j] = Record_Test.fieldName(j);
+                        Matrix_Tables_FieldNames[i][j] = Record_Test.fieldName(j);
+                        int temp = int(Record_Test.field(j).type());
+                        // Теперь получается так:
+                        // INT == int == "2"
+                        // VARCHAR == TEXT == QString == "10"
+                        // BOOLEAN == bool == "1"
+                        // REAL == double == "6"
+                        // BYTEA == ByteA == ("\f"== "12")
+                        switch (temp)
+                        {
+                        case (1):
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "bool";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        case (2):
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "int";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        case (10):
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "QString";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        case (6):
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "double";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        case (12):
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "ByteA";
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        default:
+                            Temp_Matrix_Tables_FieldTypes[i][j] = "Unknown type. Code: " + QString(temp);
+                            Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
+                            break;
+                        }
+                        qDebug() << "Имя поля: " << Temp_Matrix_Tables_FieldNames[i][j] << "; Тип: " << Temp_Matrix_Tables_FieldTypes[i][j];
+                        qDebug() << "Глобальное имя поля: " << Matrix_Tables_FieldNames[i][j] << "; Глобальный тип поля " <<Matrix_Tables_FieldTypes[i][j];
+                    }
+                    qDebug() << "";
+                }
+                // Очистка памяти от временного локального массива
+                delete [] Temp_Matrix_Tables_FieldNames;
+                delete [] Temp_Matrix_Tables_FieldTypes;
+
+                /* Test, если закомменчено */
+                TABLE_MODEL = new QSqlTableModel(this, DB);
+                // Вывод без сортировки по первому столбцу
+                query_text = "SELECT * FROM " + BD_Tables_List_Asked[0] + " ORDER BY " + Matrix_Tables_FieldNames[0][0] + ";";
+                //qDebug() << "Test: " << query_text;
+                QUERY_MODEL = new QSqlQueryModel();
+                QUERY_MODEL->setQuery(query_text);
+                ui->tableView->setModel(QUERY_MODEL);
+                // Вывод на 1 позицию в списке таблиц (0 занята под пользовательские запросы)
+                Current_Table_Number = 1;
+                // Вывод индексов таблиц в списке
+                int i = 0;
+                while (i != BD_Tables_List_Asked.count())
+                {
+                    qDebug() << "По индексу " << i << " находится таблица " << BD_Tables_List_Asked[i];
+                    i += 1;
+                }
+                qDebug() << "BD_List_Tables_Count == " << BD_Tables_List_Asked.count();
+            }
+            else
+            {
+                qDebug() << "ERROR!" << DB.lastError();
+            }
+
+            // Всплывающая подсказка
+            ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number - 1] + " подключённой базы данных");
+        }
+    }
+    if (index == 1)
+    {
+        qDebug() << "Проверка на открытие файла с запрошенными параметрами";
+        DB = QSqlDatabase::addDatabase("QODBC");
+        DB.setDatabaseName(Transfer_DB_Name);
+        // Это точно работает
+        qDebug() << DB;
+        if (DB.open())
+        {
+            qDebug() << "База данных Access открыта прям точно";
             BD_Tables_List_Asked = DB.tables();
             qDebug() << "Таблицы базы данных без сортировки - " << BD_Tables_List_Asked;
             // Сортировка имен таблиц в списке по возрастанию имен
@@ -219,14 +515,11 @@ void SQL_Window_Main::on_comboBox_activated(int index)
 
             for (int i = 0; i < BD_Tables_List_Asked.size(); ++i)
             {
-                query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[i] + "\"";
+                query_text = "SELECT * FROM " + BD_Tables_List_Asked[i] + "";
                 Query_Test.exec(query_text);
                 Record_Test = Query_Test.record();
                 qDebug() << "В таблице " << BD_Tables_List_Asked[i] << " количество столбцов = " << Record_Test.count();
 
-                //Matrix_Tables_FieldTypes[i] = new QString [Record_Test.count()];
-                //Matrix_Tables_FieldNames[i] = new QString [Record_Test.count()];
-                //Test_Mas[i] = new QString [Record_Test.count()];
                 Temp_Matrix_Tables_FieldTypes[i] = new QString [Record_Test.count()];
                 Temp_Matrix_Tables_FieldNames[i] = new QString [Record_Test.count()];
 
@@ -235,25 +528,11 @@ void SQL_Window_Main::on_comboBox_activated(int index)
                 Matrix_Tables_FieldNames[i] = new QString [Record_Test.count()];
                 Matrix_Tables_FieldNames[i] = Temp_Matrix_Tables_FieldNames[i];
                 Matrix_Tables_FieldTypes[i] = Temp_Matrix_Tables_FieldTypes[i];
-
-
                 qDebug() << "Имеются следующие столбцы:";
                 for(int j = 0; j < Record_Test.count(); ++j)
                 {
-                    //qDebug() << "Имя поля: " << Record_Test.fieldName(j) << "; Тип: " << Record_Test.field(j).type();
-
-                    //Matrix_Tables_FieldNames[i][j] = Record_Test.fieldName(j);
                     Temp_Matrix_Tables_FieldNames[i][j] = Record_Test.fieldName(j);
                     Matrix_Tables_FieldNames[i][j] = Record_Test.fieldName(j);
-
-                    /* Old
-                    //Test_Mas[i][j] = Record_Test.fieldName(j);
-                    // Не очень пока - надо найти способ QVariant в QString
-                    //Matrix_Tables_Types[i][j] = Record_Test.field(j).type(); QString::fromUtf8(line.c_str());
-                    //string temp = to_string(Record_Test.field(j).type());
-                    //Matrix_Tables_FieldTypes[i][j] = QString::fromUtf8(temp.c_str());
-                    */
-
                     int temp = int(Record_Test.field(j).type());
                     // Теперь получается так:
                     // INT == int == "2"
@@ -268,12 +547,10 @@ void SQL_Window_Main::on_comboBox_activated(int index)
                         Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
                         break;
                     case (2):
-                        //Matrix_Tables_FieldTypes[i][j] = "int";
                         Temp_Matrix_Tables_FieldTypes[i][j] = "int";
                         Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
                         break;
                     case (10):
-                        //Matrix_Tables_FieldTypes[i][j] = "QString";
                         Temp_Matrix_Tables_FieldTypes[i][j] = "QString";
                         Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
                         break;
@@ -290,72 +567,18 @@ void SQL_Window_Main::on_comboBox_activated(int index)
                         Matrix_Tables_FieldTypes[i][j] = Temp_Matrix_Tables_FieldTypes[i][j];
                         break;
                     }
-                    // Теперь вроде норм работает
-                    //qDebug() << "Имя поля: " << Matrix_Tables_FieldNames[i][j] << "; Тип: " << Matrix_Tables_FieldTypes[i][j];
                     qDebug() << "Имя поля: " << Temp_Matrix_Tables_FieldNames[i][j] << "; Тип: " << Temp_Matrix_Tables_FieldTypes[i][j];
                     qDebug() << "Глобальное имя поля: " << Matrix_Tables_FieldNames[i][j] << "; Глобальный тип поля " <<Matrix_Tables_FieldTypes[i][j];
                 }
                 qDebug() << "";
             }
-
             // Очистка памяти от временного локального массива
             delete [] Temp_Matrix_Tables_FieldNames;
             delete [] Temp_Matrix_Tables_FieldTypes;
 
-            /* Test, если закомменчено */
-            TABLE_MODEL = new QSqlTableModel(this, DB);
-            //QString query_text = "SELECT * FROM public.\"Students\" ORDER BY student_id";
-            //query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
-            // Вывод с сортировкой по первому столбцу
-            query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\" ORDER BY" + '"' + Matrix_Tables_FieldNames[0][0] + '"';
-            QUERY_MODEL = new QSqlQueryModel();
-            QUERY_MODEL->setQuery(query_text);
-            ui->tableView->setModel(QUERY_MODEL);
-            // Вывод на 1 позицию в списке таблиц (0 занята под пользовательские запросы)
-            //Current_Table_Number = 0;
-            Current_Table_Number = 1;
-            // Тест - вывод индексов таблиц в списке
-            int i = 0;
-            while (i != BD_Tables_List_Asked.count())
-            {
-                qDebug() << "По индексу " << i << " находится таблица " << BD_Tables_List_Asked[i];
-                i += 1;
-            }
-            qDebug() << "BD_List_Tables_Count == " << BD_Tables_List_Asked.count();
+
+
         }
-        else
-        {
-            qDebug() << "ERROR!" << DB.lastError();
-        }
-
-        // Тест на создание всплывающих подсказок
-        // ui->tableView->setToolTip("Всплывающая подсказка 1");
-        // Работает, поэтому дальше будут основные подсказки
-        //ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number] + " подключённой базы данных");
-        ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number - 1] + " подключённой базы данных");
-    }
-    if(index == 1)
-    {
-        //QMessageBox::information(this, "Уведомление", "Функция временно недоступна");
-
-        // Вывод списка таблиц базы данных PostgreSQL
-        TABLE_MODEL = new QSqlTableModel(this, DB);
-        QString query_text;
-        //Не работает query_text = "SHOW TABLES";
-        // Вывод имён баз данных текущего сервера query_text = "SELECT datname FROM pg_database;";
-
-        // Рабочий, выводит имена таблиц
-        //query_text = "SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');";
-
-        // Тест на вывод более подробной информации о таблицах
-        //query_text = "SELECT relname, relcrdate FROM pg_class WHERE relkind = 'r' AND relname NOT LIKE 'pg_%' AND relname NOT LIKE 'sql_%' ORDER BY relname;";
-        query_text = "SELECT relid, relname AS Table_name, schemaname AS Schema_type, seq_tup_read AS Read_count, n_tup_ins AS Insert_count, n_tup_upd AS Update_count, n_tup_del AS Delete_count, n_live_tup, idx_scan, idx_tup_fetch FROM pg_stat_user_tables ORDER BY Table_name";
-
-        qDebug() << query_text;
-        QUERY_MODEL = new QSqlQueryModel();
-        QUERY_MODEL->setQuery(query_text);
-        ui->tableView->setModel(QUERY_MODEL);
-        qDebug() << "Список доступных таблиц";
     }
 
     /* Временно закрыто
@@ -419,7 +642,8 @@ void SQL_Window_Main::on_tableView_clicked(const QModelIndex &index)
 
 void SQL_Window_Main::on_pushButton_2_clicked()
 {
-    if (Current_BD_Type == 0)
+    // PostgreSQL
+    if (DATABASE_Type == 0)
     {
         // Сортировка таблиц в списке на всякий случай
         BD_Tables_List_Asked.sort();
@@ -466,6 +690,53 @@ void SQL_Window_Main::on_pushButton_2_clicked()
             // Чтобы окно осталось
             return;
         }
+    }
+
+    // Microsoft Access
+    if (DATABASE_Type == 2)
+    {
+        // Сортировка таблиц в списке на всякий случай
+        BD_Tables_List_Asked.sort();
+
+        // Если кто-то пытается перейти с окна пользовательского запроса к таблице влево
+        if (Current_Table_Number == 0)
+        {
+            TABLE_MODEL = new QSqlTableModel(this, DB);
+            QString query_text = "SELECT * FROM " + BD_Tables_List_Asked[Current_Table_Number] + ";";
+            QUERY_MODEL = new QSqlQueryModel();
+            QUERY_MODEL->setQuery(query_text);
+            ui->tableView->setModel(QUERY_MODEL);
+            // Всплывающая подсказка
+            ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number] + " подключённой базы данных");
+            Current_Table_Number = 1;
+        }
+
+        // Реализация свободного переключения таблиц
+        if(Current_Table_Number == 1)
+        {
+            qDebug() << "Левая граница возможных таблиц!";
+            Current_Table_Number = 1;
+            qDebug() << "Текущий индекс - " << Current_Table_Number;
+        }
+        else
+        {
+            // Test, success
+            Current_Table_Number -= 1;
+            qDebug() << "Текущий индекс - " << Current_Table_Number;
+
+            TABLE_MODEL = new QSqlTableModel(this, DB);
+            // Вывод с сортировкой по первому столбцу
+            QString query_text = "SELECT * FROM " + BD_Tables_List_Asked[Current_Table_Number - 1] + " ORDER BY " + Matrix_Tables_FieldNames[Current_Table_Number - 1][0] + ";";
+            QUERY_MODEL = new QSqlQueryModel();
+            QUERY_MODEL->setQuery(query_text);
+            ui->tableView->setModel(QUERY_MODEL);
+            // Всплывающая подсказка
+            ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number - 1] + " подключённой базы данных");
+            // Чтобы окно осталось
+            return;
+        }
+
+    }
 
         /* Старая реализация переключения таблиц
         if (Current_Table_Number == 3)
@@ -512,7 +783,7 @@ void SQL_Window_Main::on_pushButton_2_clicked()
             qDebug() << "Just stay there!";
 }
 */
-            /* Just for test
+        /* Just for test
             QString query_text;
             QSqlRecord Record_Test;
             QSqlQuery Query_Test;
@@ -526,16 +797,13 @@ void SQL_Window_Main::on_pushButton_2_clicked()
                 {
                     qDebug() << "Данные из массива Test_Mas" << Test_Mas[i][j];
                 }
-            }
-*/
+            }*/
 
-    }
 }
-
-
 void SQL_Window_Main::on_pushButton_3_clicked()
 {
-    if (Current_BD_Type == 0)
+    // PostgreSQL
+    if (DATABASE_Type == 0)
     {
         /* Старое переключение таблиц
         if(Current_Table_Number == 0)
@@ -607,6 +875,34 @@ void SQL_Window_Main::on_pushButton_3_clicked()
             //Current_Table_Number += 1;
             //qDebug() << "Текущий индекс - " << Current_Table_Number;
 
+            // Всплывающая подсказка
+            ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number - 1] + " подключённой базы данных");
+            // Чтобы окно осталось
+            return;
+        }
+    }
+    // Microsoft Access
+    if (DATABASE_Type == 2)
+    {
+        // Сортировка таблиц в списке на всякий случай
+        BD_Tables_List_Asked.sort();
+        // Реализация свободного переключения таблиц
+        if(Current_Table_Number == (BD_Tables_List_Asked.count() - 1) + 1)
+        {
+            qDebug() << "Правая граница возможных таблиц!";
+            qDebug() << "Текущий индекс - " << Current_Table_Number;
+        }
+        else
+        {
+            // Test, success
+            Current_Table_Number += 1;
+            qDebug() << "Текущий индекс - " << Current_Table_Number;
+            TABLE_MODEL = new QSqlTableModel(this, DB);
+            // Вывод с сортировкой по певому столбцу
+            QString query_text = "SELECT * FROM " + BD_Tables_List_Asked[Current_Table_Number - 1] + " ORDER BY " + Matrix_Tables_FieldNames[Current_Table_Number - 1][0] + ";";
+            QUERY_MODEL = new QSqlQueryModel();
+            QUERY_MODEL->setQuery(query_text);
+            ui->tableView->setModel(QUERY_MODEL);
             // Всплывающая подсказка
             ui->tableView->setToolTip("Таблица " + BD_Tables_List_Asked[Current_Table_Number - 1] + " подключённой базы данных");
             // Чтобы окно осталось
@@ -781,21 +1077,40 @@ void SQL_Window_Main::on_pushButton_7_clicked()
 }
 
 // Получение данных о БД для подключения
-void SQL_Window_Main::get_DB_data_from_login(QSqlDatabase DB_Data)
+void SQL_Window_Main::get_DB_data_from_login(QSqlDatabase DB_Data, int DataBase_Type)
 {
     //DB = DB_Data;
-    DB = QSqlDatabase::cloneDatabase(DB_Data, "PostgreSQL_New_Connect");
-    qDebug() << "Полученные данные про DB" << DB;
-    Transfer_DB_Adress = DB.hostName();
-    qDebug() << "Полученный адрес БД в Qstring - " << Transfer_DB_Adress;
-    Transfer_DB_Port = DB.port();
-    qDebug() << "Полученный port БД в Qstring" << QString::number(Transfer_DB_Port);
-    Transfer_DB_Name = DB.databaseName();
-    qDebug() << "Полученное имя БД в QString" << Transfer_DB_Name;
-    Transfer_DB_User = DB.userName();
-    qDebug() << "Полученный логин пользователя в QString" << Transfer_DB_User;
-    Transfer_DB_Password = DB.password();
-    qDebug() << "Полученный пароль пользователя в QString" << Transfer_DB_Password;
+    DATABASE_Type = DataBase_Type;
+    if (DATABASE_Type == 0)
+    {
+        DB = QSqlDatabase::cloneDatabase(DB_Data, "PostgreSQL_New_Connect");
+        qDebug() << "Полученные данные про DB" << DB;
+        Transfer_DB_Adress = DB.hostName();
+        qDebug() << "Полученный адрес БД в Qstring - " << Transfer_DB_Adress;
+        Transfer_DB_Port = DB.port();
+        qDebug() << "Полученный port БД в Qstring" << QString::number(Transfer_DB_Port);
+        Transfer_DB_Name = DB.databaseName();
+        qDebug() << "Полученное имя БД в QString" << Transfer_DB_Name;
+        Transfer_DB_User = DB.userName();
+        qDebug() << "Полученный логин пользователя в QString" << Transfer_DB_User;
+        Transfer_DB_Password = DB.password();
+        qDebug() << "Полученный пароль пользователя в QString" << Transfer_DB_Password;
+    }
+    else if (DATABASE_Type == 2)
+    {
+        DB = QSqlDatabase::cloneDatabase(DB_Data, "MicrosoftAccess_New_Connect");
+        qDebug() << "Полученные данные про DB" << DB;
+        //Transfer_DB_Adress = DB.hostName();
+        //qDebug() << "Полученный адрес БД в Qstring - " << Transfer_DB_Adress;
+        //Transfer_DB_Port = DB.port();
+        //qDebug() << "Полученный port БД в Qstring" << QString::number(Transfer_DB_Port);
+        Transfer_DB_Name = DB.databaseName();
+        qDebug() << "Полученное имя БД в QString" << Transfer_DB_Name;
+        //Transfer_DB_User = DB.userName();
+        //qDebug() << "Полученный логин пользователя в QString" << Transfer_DB_User;
+        //Transfer_DB_Password = DB.password();
+        //qDebug() << "Полученный пароль пользователя в QString" << Transfer_DB_Password;
+    }
 }
 
 // Передача данных о списке таблиц

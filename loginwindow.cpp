@@ -212,7 +212,7 @@ void LoginWindow::on_pushButton_clicked()
             // qDebug() << "Временно закрываем связь";
             //DB_login.close();
             //DB_login.removeDatabase("PQSL_Database_Connection");
-            SQL_Window_Main().get_DB_data_from_login(DB_login);
+            SQL_Window_Main().get_DB_data_from_login(DB_login, DB_Login_Type);
 
             // Иконка и подпись для второго окна
             SQLWindow->setWindowIcon(QIcon("Exe_Icon_1.png"));
@@ -374,6 +374,10 @@ void LoginWindow::on_pushButton_clicked()
         if(DB_login.open())
         {
             qDebug("Подключен Microsoft Access");
+            SQL_Window_Main().get_DB_data_from_login(DB_login, DB_Login_Type);
+            // Иконка и подпись для второго окна
+            SQLWindow->setWindowIcon(QIcon("Exe_Icon_1.png"));
+            SQLWindow->setWindowTitle("Основное окно");
             SQLWindow->show();
             this->close();
         }

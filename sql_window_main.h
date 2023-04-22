@@ -43,7 +43,7 @@ public:
     //void get_DB_data_from_login(QSqlDatabase DB_Data);
     // Почему - то даже при успешном переносе не хочет открываться QSqlDatabase(invalid)
     // Теперь работает
-    void get_DB_data_from_login(QSqlDatabase DB_Data);
+    void get_DB_data_from_login(QSqlDatabase DB_Data, int DB_Type);
 
     // Передача данных о текущей таблице в insert
     int take_list_of_Tables(int Current_table_number_for_insert);
