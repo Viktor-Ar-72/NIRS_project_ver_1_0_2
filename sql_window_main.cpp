@@ -96,6 +96,7 @@ void SQL_Window_Main::on_comboBox_activated(int index)
 
         if (index == 0)
         {
+                        /* Old realizations
             //qDebug() << "Тут пока пусто" << endl;
             //Current_BD_Type = 0;
 
@@ -104,7 +105,7 @@ void SQL_Window_Main::on_comboBox_activated(int index)
             //QMessageBox::warning(this, "Уведомление", "Подключение к базе данных Microsoft Access закрыто");
             //QMessageBox::information(this, "Уведомление", "Подключение к базе данных Microsoft Access закрыто");
 
-            /* Old realizations
+
         // Подключение драйвера БД
         DB = QSqlDatabase::addDatabase("QPSQL");
         // Вариант с запросом из файла
@@ -581,7 +582,8 @@ void SQL_Window_Main::on_comboBox_activated(int index)
         }
     }
 
-    /* Временно закрыто
+    /* Реализация перенесена в другие части программы
+     * Временно закрыто
     if (index == 1)
     {
         QString InformAccess;
@@ -929,8 +931,8 @@ void SQL_Window_Main::on_pushButton_4_clicked()
 
     qDebug("Переход на окно вставки данных");
     // Передача показаний о БД
-    Dialog_SQL_Insert().get_DB_connection_from_MainWindow(DB);
-    Dialog_SQL_Insert().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes);
+    Dialog_SQL_Insert().get_DB_connection_from_MainWindow(DB, DATABASE_Type);
+    Dialog_SQL_Insert().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes, DATABASE_Type);
     // Переход на второе окно
     // Иконка и подпись для окна Update
     InsertWindow->setWindowIcon(QIcon("Exe_Icon_1.png"));

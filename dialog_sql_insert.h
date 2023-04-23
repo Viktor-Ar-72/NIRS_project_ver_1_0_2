@@ -28,8 +28,8 @@ public:
     ~Dialog_SQL_Insert();
 
     // Для получения данных о БД
-    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types);
-    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data);
+    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types, int DB_Class);
+    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data, int DB_class);
     // Функции реализации генераторов
     //int VihrMersenna_Gen(int gen_VM_left_edge, int gen_VM_right_edge, std::mt19937_64 Gen_engine);
     // Int + Bool

@@ -24,6 +24,8 @@ QString **Insert_Matrix_Tables_FieldTypes;
 QString **Insert_Matrix_Tables_FieldNames;
 // Тип генератора
 short GenType;
+// Тип БД
+int BD_Type_Insert;
 
 // Макрос дял определения размера массива (на всякий случай)
 // Закомменчен, так как похоже, не требуется
@@ -304,7 +306,8 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
      * MySQL
      * INSERT INTO `testdatabasemysql`.`test_table_1` (`Column_Int_1`, `Column_Int_2`, `Column_Text`, `Column_Bool`) VALUES ('1', '1', 'Hello, world!', '1');
      * DELETE FROM `testdatabasemysql`.`test_table_1` WHERE (`Column_Int_1` = '2');
-     *
+     * Microsoft Access
+     * INSERT INTO Table2 VALUES (11, 'Test_Text_Insert', 70);
      *
      **/
     /*
@@ -626,7 +629,15 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
     //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (0, 0, 'Test_insert_1', TRUE)";
     QSqlRecord Insert_Record;
     QSqlQuery Query_Insert;
-    QString query_vrem_text = "SELECT * FROM public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\"";
+    QString query_vrem_text;
+    if (BD_Type_Insert == 0)
+    {
+        query_vrem_text = "SELECT * FROM public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\"";
+    }
+    if (BD_Type_Insert == 2)
+    {
+        query_vrem_text = "SELECT * FROM " + Insert_BD_Tables_List_Asked[Insert_Table_Index] + ";";
+    }
     Query_Insert.exec(query_vrem_text);
     Insert_Record = Query_Insert.record();
     //int h = Record_Test.count();
@@ -637,12 +648,21 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
     {
         //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (";
         //query_insert_text = "";
-        // Создание шаблона запроса. И снова спасибо ПЗЕ4:)
-        query_insert_text = "INSERT INTO public.";
-        query_insert_text += '"';
-        query_insert_text = query_insert_text + Insert_BD_Tables_List_Asked[Insert_Table_Index];
-        query_insert_text.append('"');
-        query_insert_text = query_insert_text + " VALUES (";
+        if (BD_Type_Insert == 0)
+        {
+            // Создание шаблона запроса. И снова спасибо ПЗЕ4:)
+            query_insert_text = "INSERT INTO public.";
+            query_insert_text += '"';
+            query_insert_text = query_insert_text + Insert_BD_Tables_List_Asked[Insert_Table_Index];
+            query_insert_text.append('"');
+            query_insert_text = query_insert_text + " VALUES (";
+        }
+        if (BD_Type_Insert == 2)
+        {
+            query_insert_text = "INSERT INTO ";
+            query_insert_text = query_insert_text + Insert_BD_Tables_List_Asked[Insert_Table_Index];
+            query_insert_text = query_insert_text + " VALUES (";
+        }
 
         // Создание дополнительных переменных для доп.циклов
         int start_index_int = V * k_int;
@@ -723,8 +743,8 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         query_insert_text = query_insert_text.append(");");
         qDebug() << "Запрос на вставку" << V << query_insert_text;
         // Если временно закомменчено - значит, происходит тест на вставку данных
-        QUERY_MODEL->setQuery(query_insert_text);
-        qDebug() << "Запрос на вставку" << V << "выполнен.";
+        //QUERY_MODEL->setQuery(query_insert_text);
+        //qDebug() << "Запрос на вставку" << V << "выполнен.";
     }
 
     /* Возможный вариант реализации просмотра нескольких значений массива на одну итерацию Insert от GPT-4
@@ -969,7 +989,7 @@ void Dialog_SQL_Insert::on_taskVariant_editingFinished()
 
 
 // Новая функция для получения данных о таблицах
-void Dialog_SQL_Insert::get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types)
+void Dialog_SQL_Insert::get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types, int DB_Class)
 {
     // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
     QString query_text;
@@ -984,14 +1004,20 @@ void Dialog_SQL_Insert::get_DB_Table_Info(QStringList DB_tables_list, QString **
     qDebug() << "Массив типов полей, полученные данные" << Insert_Matrix_Tables_FieldTypes;
     for (int i = 0; i < Insert_BD_Tables_List_Asked.size(); ++i)
     {
-    //int i = 1;
-        query_text = "SELECT * FROM public.\"" + Insert_BD_Tables_List_Asked[i] + "\"";
+        //int i = 1;
+        if (DB_Class == 0)
+        {
+            query_text = "SELECT * FROM public.\"" + Insert_BD_Tables_List_Asked[i] + "\"";
+        }
+        if (DB_Class == 2)
+        {
+            query_text = "SELECT * FROM " + Insert_BD_Tables_List_Asked[i] + ";";
+        }
         Query_Test.exec(query_text);
         Record_Test = Query_Test.record();
         //for (int j = 0; j < Insert_Matrix_Tables_FieldNames[i]->count() - 1; ++j)
         for(int j = 0; j < Record_Test.count(); ++j)
         {
-
             qDebug() << "Имя поля - " + Insert_Matrix_Tables_FieldNames[i][j] + "; Тип поля - " + Insert_Matrix_Tables_FieldTypes[i][j];
         }
     }
@@ -1078,35 +1104,70 @@ void Dialog_SQL_Insert::get_DB_Table_Info(QStringList DB_tables_list, QString **
 }
 
 // Функция для подключения данных о подключении и установке соединения
-void Dialog_SQL_Insert::get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data)
+void Dialog_SQL_Insert::get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data, int DB_class)
 {
-    DB = QSqlDatabase::cloneDatabase(DB_conn_data, "PostgreSQL_New_Connect");
-    qDebug() << "Insert: Полученные данные про DB" << DB;
-    Insert_Transfer_DB_Adress = DB.hostName();
-    qDebug() << "Insert: Полученный адрес БД в Qstring - " << Insert_Transfer_DB_Adress;
-    Insert_Transfer_DB_Port = DB.port();
-    qDebug() << "Insert: Полученный port БД в Qstring" << QString::number(Insert_Transfer_DB_Port);
-    Insert_Transfer_DB_Name = DB.databaseName();
-    qDebug() << "Insert: Полученное имя БД в QString" << Insert_Transfer_DB_Name;
-    Insert_Transfer_DB_User = DB.userName();
-    qDebug() << "Insert: Полученный логин пользователя в QString" << Insert_Transfer_DB_User;
-    Insert_Transfer_DB_Password = DB.password();
-    qDebug() << "Insert: Полученный пароль пользователя в QString" << Insert_Transfer_DB_Password;
+    BD_Type_Insert = DB_class;
+    if (DB_class == 0)
+    {
+        DB = QSqlDatabase::cloneDatabase(DB_conn_data, "PostgreSQL_New_Connect");
+        qDebug() << "Insert: Полученные данные про DB" << DB;
+        Insert_Transfer_DB_Adress = DB.hostName();
+        qDebug() << "Insert: Полученный адрес БД в Qstring - " << Insert_Transfer_DB_Adress;
+        Insert_Transfer_DB_Port = DB.port();
+        qDebug() << "Insert: Полученный port БД в Qstring" << QString::number(Insert_Transfer_DB_Port);
+        Insert_Transfer_DB_Name = DB.databaseName();
+        qDebug() << "Insert: Полученное имя БД в QString" << Insert_Transfer_DB_Name;
+        Insert_Transfer_DB_User = DB.userName();
+        qDebug() << "Insert: Полученный логин пользователя в QString" << Insert_Transfer_DB_User;
+        Insert_Transfer_DB_Password = DB.password();
+        qDebug() << "Insert: Полученный пароль пользователя в QString" << Insert_Transfer_DB_Password;
 
-    qDebug() << "Проверка на открытие файла с запрошенными параметрами";
-    DB = QSqlDatabase::addDatabase("QPSQL", "InsertWindowConnect");
-    DB.setHostName(Insert_Transfer_DB_Adress);
-    DB.setPort(Insert_Transfer_DB_Port);
-    DB.setDatabaseName(Insert_Transfer_DB_Name);
-    DB.setUserName(Insert_Transfer_DB_User);
-    DB.setPassword(Insert_Transfer_DB_Password);
-    if (DB.open())
-    {
-        qDebug() << "DB in Insert is open: " << DB;
+        qDebug() << "Проверка на открытие файла с запрошенными параметрами";
+        DB = QSqlDatabase::addDatabase("QPSQL", "InsertWindowConnect");
+        DB.setHostName(Insert_Transfer_DB_Adress);
+        DB.setPort(Insert_Transfer_DB_Port);
+        DB.setDatabaseName(Insert_Transfer_DB_Name);
+        DB.setUserName(Insert_Transfer_DB_User);
+        DB.setPassword(Insert_Transfer_DB_Password);
+        if (DB.open())
+        {
+            qDebug() << "DB in Insert is open: " << DB;
+        }
+        else
+        {
+            qDebug() << "Error in Insert DB opening: " << DB.lastError();
+        }
     }
-    else
+    if (DB_class == 2)
     {
-        qDebug() << "Error in Insert DB opening: " << DB.lastError();
+        DB = QSqlDatabase::cloneDatabase(DB_conn_data, "MicrosoftAccess_New_Connect");
+        qDebug() << "Insert: Полученные данные про DB" << DB;
+        //Insert_Transfer_DB_Adress = DB.hostName();
+        //qDebug() << "Insert: Полученный адрес БД в Qstring - " << Insert_Transfer_DB_Adress;
+        //Insert_Transfer_DB_Port = DB.port();
+        //qDebug() << "Insert: Полученный port БД в Qstring" << QString::number(Insert_Transfer_DB_Port);
+        Insert_Transfer_DB_Name = DB.databaseName();
+        qDebug() << "Insert: Полученное имя БД в QString" << Insert_Transfer_DB_Name;
+        //Insert_Transfer_DB_User = DB.userName();
+        //qDebug() << "Insert: Полученный логин пользователя в QString" << Insert_Transfer_DB_User;
+        //Insert_Transfer_DB_Password = DB.password();
+        //qDebug() << "Insert: Полученный пароль пользователя в QString" << Insert_Transfer_DB_Password;
+
+        qDebug() << "Проверка на открытие файла с запрошенными параметрами";
+        DB = QSqlDatabase::addDatabase("QODBC", "InsertWindowConnect");
+        //DB.setHostName(Insert_Transfer_DB_Adress);
+        //DB.setPort(Insert_Transfer_DB_Port);
+        DB.setDatabaseName(Insert_Transfer_DB_Name);
+        //DB.setUserName(Insert_Transfer_DB_User);
+        //DB.setPassword(Insert_Transfer_DB_Password);
+        if (DB.open())
+        {
+            qDebug() << "DB in Insert is open: " << DB;
+        }
+        else
+        {
+            qDebug() << "Error in Insert DB opening: " << DB.lastError();
+        }
     }
 }
 
