@@ -308,7 +308,7 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
      * DELETE FROM `testdatabasemysql`.`test_table_1` WHERE (`Column_Int_1` = '2');
      * Microsoft Access
      * INSERT INTO Table2 VALUES (11, 'Test_Text_Insert', 70);
-     *
+     * INSERT INTO Test_Table_2 VALUES (2, 'ABC', 'Test', TRUE);
      **/
     /*
     // Тесты
@@ -333,7 +333,14 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         QString query_text;
         QSqlRecord Record_Test;
         QSqlQuery Query_Test;
-        query_text = "SELECT * FROM public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\"";
+        if (BD_Type_Insert == 0)
+        {
+            query_text = "SELECT * FROM public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\"";
+        }
+        if (BD_Type_Insert == 2)
+        {
+            query_text = "SELECT * FROM " + Insert_BD_Tables_List_Asked[Insert_Table_Index] + ";";
+        }
         Query_Test.exec(query_text);
         Record_Test = Query_Test.record();
         //for (int R = 0; R < Insert_Matrix_Tables_FieldNames[Insert_Table_Index]->count() - 1; ++R)
@@ -743,8 +750,8 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
         query_insert_text = query_insert_text.append(");");
         qDebug() << "Запрос на вставку" << V << query_insert_text;
         // Если временно закомменчено - значит, происходит тест на вставку данных
-        //QUERY_MODEL->setQuery(query_insert_text);
-        //qDebug() << "Запрос на вставку" << V << "выполнен.";
+        QUERY_MODEL->setQuery(query_insert_text);
+        qDebug() << "Запрос на вставку" << V << "выполнен.";
     }
 
     /* Возможный вариант реализации просмотра нескольких значений массива на одну итерацию Insert от GPT-4
@@ -793,8 +800,6 @@ void Dialog_SQL_Insert::on_pushButton_clicked()
     // Возврат к основному окну
     this->close();
     emit InWindow();
-
-
 
 
 
