@@ -52,6 +52,8 @@ QString **Update_Matrix_Tables_FieldTypes;
 QString **Update_Matrix_Tables_FieldNames;
 // Тип генератора
 short Update_GenType;
+// Класс базы данных
+int DB_Update_Type;
 
 // Глобальные переменные для работы с подключением к базе данных
 QString Update_Transfer_DB_Adress, Update_Transfer_DB_Name, Update_Transfer_DB_User, Update_Transfer_DB_Password;
@@ -71,15 +73,29 @@ double Update_real_left, Update_real_right;
 void Dialog_SQL_Update::on_pushButton_OK_clicked()
 {
     /*
+     * PostgreSQL
      * UPDATE public."TestTable_1"
 SET "Column_Int_1" = 5, "Column_Int_2" = 10, "Column_Text" = 'Test Update text', "Column_Bool" = true
 WHERE "Column_Int_1" = 0
      *
+     * Microsoft Access
+     * UPDATE Test_Table_1 SET "Column_Int_2" = 43, "Column_Text" = 'Update_text', "Column_Double_1" = 4.13748,
+     * "Column_Double_2" = 2.54518 WHERE "Column_Int_1" = 9;
+     * Column_Int_1 не даёт обновлять - типо необновляемый Primary.
+     * Ещё пример, на этот раз сгенерированный системой)(только убрал Column_Int_1)
+     * UPDATE Test_Table_1 SET "Column_Int_2" = 15, "Column_Text" = 'RfUIE', "Column_Double_1" = 7.933913, "Column_Double_2" = 8.499814 WHERE "Column_Int_1" = 9
      */
 
     QString query_text;
     QSqlQueryModel Query_Test;
-    query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    if (DB_Update_Type == 0)
+    {
+        query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    }
+    if (DB_Update_Type == 2)
+    {
+        query_text = "SELECT * FROM " + Update_BD_Tables_List_Asked[Update_Table_Index] + ";";
+    }
     Query_Test.setQuery(query_text);
     int table_size = Query_Test.rowCount();
     //if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start) >= 0))
@@ -90,7 +106,14 @@ WHERE "Column_Int_1" = 0
         QString query_text;
         QSqlRecord Record_Test;
         QSqlQuery Query_Test;
-        query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+        if (DB_Update_Type == 0)
+        {
+            query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+        }
+        if (DB_Update_Type == 2)
+        {
+            query_text = "SELECT * FROM " + Update_BD_Tables_List_Asked[Update_Table_Index] + ";";
+        }
         Query_Test.exec(query_text);
         Record_Test = Query_Test.record();
         //for (int R = 0; R < Insert_Matrix_Tables_FieldNames[Insert_Table_Index]->count() - 1; ++R)
@@ -298,8 +321,15 @@ WHERE "Column_Int_1" = 0
 
         QSqlQueryModel SQL_Querry_Model;
         QString query_U_borders;
+        if (DB_Update_Type == 0)
+        {
         query_U_borders = "SELECT * FROM public.";
         query_U_borders += '"' + Update_BD_Tables_List_Asked[Update_Table_Index] + '"' + " ORDER BY" + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][0] + '"';
+        }
+        if (DB_Update_Type == 2)
+        {
+            query_U_borders = "SELECT * FROM " + Update_BD_Tables_List_Asked[Update_Table_Index] + " ORDER BY " + Update_Matrix_Tables_FieldNames[Update_Table_Index][0] + ";";
+        }
         qDebug() << "Запрос на поиск нужной строки - " << query_U_borders;
         SQL_Querry_Model.setQuery(query_U_borders);
 
@@ -360,8 +390,6 @@ WHERE "Column_Int_1" = 0
                 m += 1;
             }
 
-
-
             //int ID = SQL_Querry_Model.record(i).value("ID").toInt();
             //QString Data = SQL_Querry_Model.record(i).value("Data").toString();
             //qDebug() << ID << Data;
@@ -374,7 +402,15 @@ WHERE "Column_Int_1" = 0
         //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (0, 0, 'Test_insert_1', TRUE)";
         QSqlRecord Update_Record;
         QSqlQuery Query_Update;
-        QString query_vrem_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+        QString query_vrem_text;
+        if (DB_Update_Type == 0)
+        {
+            query_vrem_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+        }
+        if (DB_Update_Type == 2)
+        {
+            query_vrem_text = "SELECT * FROM " + Update_BD_Tables_List_Asked[Update_Table_Index] + ";";
+        }
         Query_Update.exec(query_vrem_text);
         Update_Record = Query_Update.record();
         //int h = Record_Test.count();
@@ -388,11 +424,17 @@ WHERE "Column_Int_1" = 0
             //query_insert_text = "";
             // Создание шаблона запроса. И снова спасибо ПЗЕ4:)
             //query_Update_text = "Insert INTO public.";
-            // Test
+            if (DB_Update_Type == 0)
+            {
             query_Update_text = "UPDATE public.";
             query_Update_text += '"';
             query_Update_text = query_Update_text + Update_BD_Tables_List_Asked[Update_Table_Index];
             query_Update_text.append('"');
+            }
+            if (DB_Update_Type == 2)
+            {
+                query_Update_text = "UPDATE " + Update_BD_Tables_List_Asked[Update_Table_Index];
+            }
             query_Update_text = query_Update_text + " SET ";
 
             // Создание дополнительных переменных для доп.циклов
@@ -669,7 +711,7 @@ void Dialog_SQL_Update::on_tabWidget_Update_currentChanged(int index)
 }
 
 // Новая функция для получения данных о таблицах
-void Dialog_SQL_Update::get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types)
+void Dialog_SQL_Update::get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types, int DB_Class)
 {
     // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
     QString query_text;
@@ -684,8 +726,15 @@ void Dialog_SQL_Update::get_DB_Table_Info(QStringList DB_tables_list, QString **
     qDebug() << "Массив типов полей, полученные данные" << Update_Matrix_Tables_FieldTypes;
     for (int i = 0; i < Update_BD_Tables_List_Asked.size(); ++i)
     {
-    //int i = 1;
-        query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[i] + "\"";
+        //int i = 1;
+        if (DB_Class == 0)
+        {
+            query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[i] + "\"";
+        }
+        if (DB_Class == 2)
+        {
+            query_text = "SELECT * FROM " + Update_BD_Tables_List_Asked[i] + ";";
+        }
         Query_Test.exec(query_text);
         Record_Test = Query_Test.record();
         //for (int j = 0; j < Insert_Matrix_Tables_FieldNames[i]->count() - 1; ++j)
@@ -707,35 +756,55 @@ void Dialog_SQL_Update::get_DB_Table_Info(QStringList DB_tables_list, QString **
 }
 
 // Функция для подключения данных о подключении и установке соединения
-void Dialog_SQL_Update::get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data)
+void Dialog_SQL_Update::get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data, int DB_Class)
 {
-    DB = QSqlDatabase::cloneDatabase(DB_conn_data, "PostgreSQL_New_Connect_Update");
-    qDebug() << "Update: Полученные данные про DB" << DB;
-    Update_Transfer_DB_Adress = DB.hostName();
-    qDebug() << "Update: Полученный адрес БД в Qstring - " << Update_Transfer_DB_Adress;
-    Update_Transfer_DB_Port = DB.port();
-    qDebug() << "update: Полученный port БД в Qstring" << QString::number(Update_Transfer_DB_Port);
-    Update_Transfer_DB_Name = DB.databaseName();
-    qDebug() << "Update: Полученное имя БД в QString" << Update_Transfer_DB_Name;
-    Update_Transfer_DB_User = DB.userName();
-    qDebug() << "Update: Полученный логин пользователя в QString" << Update_Transfer_DB_User;
-    Update_Transfer_DB_Password = DB.password();
-    qDebug() << "Update: Полученный пароль пользователя в QString" << Update_Transfer_DB_Password;
+    DB_Update_Type = DB_Class;
+    if (DB_Update_Type == 0)
+    {
+        DB = QSqlDatabase::cloneDatabase(DB_conn_data, "PostgreSQL_New_Connect_Update");
+        qDebug() << "Update: Полученные данные про DB" << DB;
+        Update_Transfer_DB_Adress = DB.hostName();
+        qDebug() << "Update: Полученный адрес БД в Qstring - " << Update_Transfer_DB_Adress;
+        Update_Transfer_DB_Port = DB.port();
+        qDebug() << "Update: Полученный port БД в Qstring" << QString::number(Update_Transfer_DB_Port);
+        Update_Transfer_DB_Name = DB.databaseName();
+        qDebug() << "Update: Полученное имя БД в QString" << Update_Transfer_DB_Name;
+        Update_Transfer_DB_User = DB.userName();
+        qDebug() << "Update: Полученный логин пользователя в QString" << Update_Transfer_DB_User;
+        Update_Transfer_DB_Password = DB.password();
+        qDebug() << "Update: Полученный пароль пользователя в QString" << Update_Transfer_DB_Password;
 
-    qDebug() << "Проверка на открытие файла с запрошенными параметрами";
-    DB = QSqlDatabase::addDatabase("QPSQL", "UpdateWindowConnect");
-    DB.setHostName(Update_Transfer_DB_Adress);
-    DB.setPort(Update_Transfer_DB_Port);
-    DB.setDatabaseName(Update_Transfer_DB_Name);
-    DB.setUserName(Update_Transfer_DB_User);
-    DB.setPassword(Update_Transfer_DB_Password);
-    if (DB.open())
-    {
-        qDebug() << "DB in Update is open: " << DB;
+        qDebug() << "Проверка на открытие файла с запрошенными параметрами";
+        DB = QSqlDatabase::addDatabase("QPSQL", "UpdateWindowConnect");
+        DB.setHostName(Update_Transfer_DB_Adress);
+        DB.setPort(Update_Transfer_DB_Port);
+        DB.setDatabaseName(Update_Transfer_DB_Name);
+        DB.setUserName(Update_Transfer_DB_User);
+        DB.setPassword(Update_Transfer_DB_Password);
+        if (DB.open())
+        {
+            qDebug() << "DB in Update is open: " << DB;
+        }
+        else
+        {
+            qDebug() << "Error in Update DB opening: " << DB.lastError();
+        }
     }
-    else
+    if (DB_Update_Type == 2)
     {
-        qDebug() << "Error in Update DB opening: " << DB.lastError();
+        DB = QSqlDatabase::cloneDatabase(DB_conn_data, "MicrosoftAccess_New_Connect_Update");
+        Update_Transfer_DB_Name = DB.databaseName();
+        qDebug() << "Update: Полученное имя БД в QString" << Update_Transfer_DB_Name;
+        DB = QSqlDatabase::addDatabase("QODBC", "UpdateWindowConnect");
+        DB.setDatabaseName(Update_Transfer_DB_Name);
+        if (DB.open())
+        {
+            qDebug() << "DB in Update is open: " << DB;
+        }
+        else
+        {
+            qDebug() << "Error in Update DB opening: " << DB.lastError();
+        }
     }
 }
 
@@ -780,7 +849,14 @@ void Dialog_SQL_Update::on_lineEdit_strok_start_editingFinished()
     */
     QString query_text;
     QSqlQueryModel Query_Test;
-    query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    if (DB_Update_Type == 0)
+    {
+        query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    }
+    if (DB_Update_Type == 2)
+    {
+        query_text = "SELECT * FROM " + Update_BD_Tables_List_Asked[Update_Table_Index] + ";";
+    }
     Query_Test.setQuery(query_text);
     int r = Query_Test.rowCount();
     Update_Fields_Start = ui->lineEdit_strok_start->text().toInt();
@@ -801,7 +877,14 @@ void Dialog_SQL_Update::on_lineEdit_strok_end_editingFinished()
 {
     QString query_text;
     QSqlQueryModel Query_Test;
-    query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    if (DB_Update_Type == 0)
+    {
+        query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[Update_Table_Index] + "\"";
+    }
+    if (DB_Update_Type == 2)
+    {
+        query_text = "SELECT * FROM " + Update_BD_Tables_List_Asked[Update_Table_Index] + ";";
+    }
     Query_Test.setQuery(query_text);
     int r = Query_Test.rowCount();
     Update_Fields_Finish = ui->lineEdit_strok_end->text().toInt();

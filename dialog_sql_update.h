@@ -36,8 +36,8 @@ public:
     ~Dialog_SQL_Update();
 
     // Функции для инициализации
-    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types);
-    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data);
+    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types, int DB_Class);
+    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data, int DB_Class);
 
     // Функции реализации генераторов
     // Int + Bool
@@ -49,7 +49,7 @@ public:
     // Varchar
     QString* Up_VihrMersenna_Gen_Char(QString* massiv_gen_numbers, int rasmer, int length, int gen_VM_left_edge, int gen_VM_right_edge);
     QString* Up_MacLarenMarsalii_Gen_Char(QString* massiv_gen_numbers, int rasmer, int length,  int gen_MM_left_edge, int gen_MM_right_edge);
-    // ByteA / Blob
+    // ByteA
     QString* Up_VihrMersenna_Gen_ByteA(QString* massiv_gen_numbers, int rasmer, int length, int gen_VM_left_edge, int gen_VM_right_edge);
     QString* Up_MacLarenMarsalii_Gen_ByteA(QString* massiv_gen_numbers, int rasmer, int length,  int gen_MM_left_edge, int gen_MM_right_edge);
 
@@ -85,7 +85,6 @@ private slots:
 
     void on_lineEdit_task_var_editingFinished();
 */
-
 
     void on_comboBox_algoritms_activated(int index);
 

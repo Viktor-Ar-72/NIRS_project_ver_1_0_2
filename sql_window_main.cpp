@@ -929,7 +929,15 @@ void SQL_Window_Main::on_pushButton_4_clicked()
         // Значит, мы сейчас на таблице пользовательского запроса
         QMessageBox::warning(this, "Warning", "Вы находитесь на таблице пользовательского запроса. /n Вставка будет осуществляться в первую таблицу базы данных.");
         TABLE_MODEL = new QSqlTableModel(this, DB);
-        QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        QString query_text;
+        if (DATABASE_Type == 0)
+        {
+            query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        }
+        if (DATABASE_Type == 2)
+        {
+            query_text = "SELECT * FROM " + BD_Tables_List_Asked[0] + ";";
+        }
         QUERY_MODEL = new QSqlQueryModel();
         QUERY_MODEL->setQuery(query_text);
         ui->tableView->setModel(QUERY_MODEL);
@@ -983,7 +991,15 @@ void SQL_Window_Main::on_pushButton_5_clicked()
         // Значит, мы сейчас на таблице пользовательского запроса
         QMessageBox::warning(this, "Warning", "Вы находитесь на таблице пользовательского запроса. /n Удаление данных будет осуществляться из первой таблицы базы данных.");
         TABLE_MODEL = new QSqlTableModel(this, DB);
-        QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        QString query_text;
+        if (DATABASE_Type == 0)
+        {
+            query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        }
+        if (DATABASE_Type == 2)
+        {
+            query_text = "SELECT * FROM " + BD_Tables_List_Asked[0] + ";";
+        }
         QUERY_MODEL = new QSqlQueryModel();
         QUERY_MODEL->setQuery(query_text);
         ui->tableView->setModel(QUERY_MODEL);
@@ -1063,7 +1079,15 @@ void SQL_Window_Main::on_pushButton_7_clicked()
         // Значит, мы сейчас на таблице пользовательского запроса
         QMessageBox::warning(this, "Warning", "Вы находитесь на таблице пользовательского запроса. /n Обновление данных будет осуществляться в первой таблице базы данных.");
         TABLE_MODEL = new QSqlTableModel(this, DB);
-        QString query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        QString query_text;
+        if (DATABASE_Type == 0)
+        {
+            query_text = "SELECT * FROM public.\"" + BD_Tables_List_Asked[0] + "\"";
+        }
+        if (DATABASE_Type == 2)
+        {
+            query_text = "SELECT * FROM " + BD_Tables_List_Asked[0] + ";";
+        }
         QUERY_MODEL = new QSqlQueryModel();
         QUERY_MODEL->setQuery(query_text);
         ui->tableView->setModel(QUERY_MODEL);
@@ -1073,9 +1097,8 @@ void SQL_Window_Main::on_pushButton_7_clicked()
     // Передача данных о таблице
     //dialog_sql_update().get_DB_connection_from_MainWindow(DB);
     //dialog_sql_update().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes);
-    Dialog_SQL_Update().get_DB_connection_from_MainWindow(DB);
-    Dialog_SQL_Update().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes);
-
+    Dialog_SQL_Update().get_DB_connection_from_MainWindow(DB, DATABASE_Type);
+    Dialog_SQL_Update().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes, DATABASE_Type);
 
     // Переход на окно обновления данных
     qDebug() << "Переход на окно обновления данных";
