@@ -24,8 +24,8 @@ public:
     ~Dialog_SQL_Delete();
 
     // Функции для инициализации
-    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types);
-    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data);
+    void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types, int DB_Class);
+    void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data, int DB_Class);
 
 signals:
     // Подключение окна InsertWindow

@@ -1008,8 +1008,8 @@ void SQL_Window_Main::on_pushButton_5_clicked()
 
     // Переход на окно удаления данных
     qDebug() << "Переход на окно удаления данных";
-    Dialog_SQL_Delete().get_DB_connection_from_MainWindow(DB);
-    Dialog_SQL_Delete().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes);
+    Dialog_SQL_Delete().get_DB_connection_from_MainWindow(DB, DATABASE_Type);
+    Dialog_SQL_Delete().get_DB_Table_Info(BD_Tables_List_Asked, Matrix_Tables_FieldNames, Matrix_Tables_FieldTypes, DATABASE_Type);
     // Иконка и подпись для окна Delete
     DeleteWindow->setWindowIcon(QIcon("Exe_Icon_1.png"));
     DeleteWindow->setWindowTitle("Удаление данных");

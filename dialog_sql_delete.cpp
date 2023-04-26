@@ -34,6 +34,9 @@ Dialog_SQL_Delete::Dialog_SQL_Delete(QWidget *parent) :
  * DELETE FROM public."TestTable_1" WHERE "Column_Int_1" IN (14070);
  * DELETE FROM public."TestTable_2" WHERE "Column_Text_1" = 'hywVFsbCp';
  * DELETE FROM public."TestTable_1" WHERE "Column_Int_1" = 11
+ * Microsoft Access
+ * DELETE FROM Test_Table_1 WHERE Column_Int_1 = 15
+ * DELETE FROM Test_Table_2 WHERE Column_Int = 6
 */
 Dialog_SQL_Delete::~Dialog_SQL_Delete()
 {
@@ -55,6 +58,8 @@ int Delete_Transfer_DB_Port;
 int Delete_Table_Index;
 // Переменные границ диапазона
 int Delete_Fields_Start = NULL, Delete_Fields_Finish = NULL;
+// Тип базы данных
+int Delete_DB_Type;
 
 
 void Dialog_SQL_Delete::changeIndex(int i)
@@ -65,15 +70,29 @@ void Dialog_SQL_Delete::on_pushButton_OK_clicked()
 {
     QString query_text;
     QSqlQueryModel Query_Test;
-    query_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[Delete_Table_Index] + "\"";
+    if (Delete_DB_Type == 0)
+    {
+        query_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[Delete_Table_Index] + "\"";
+    }
+    if (Delete_DB_Type == 2)
+    {
+        query_text = "SELECT * FROM " + Delete_BD_Tables_List_Asked[Delete_Table_Index] + ";";
+    }
     Query_Test.setQuery(query_text);
     int table_size = Query_Test.rowCount();
     if ((Delete_Fields_Start >= 0) && (Delete_Fields_Finish > 0) && ((Delete_Fields_Finish - Delete_Fields_Start + 1) > 0) && (Delete_Fields_Finish < table_size))
     {
         QSqlQueryModel SQL_Querry_Model;
         QString query_U_borders;
-        query_U_borders = "SELECT * FROM public.";
-        query_U_borders += '"' + Delete_BD_Tables_List_Asked[Delete_Table_Index] + '"' + " ORDER BY" + '"' + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + '"';
+        if (Delete_DB_Type == 0)
+        {
+            query_U_borders = "SELECT * FROM public.";
+            query_U_borders += '"' + Delete_BD_Tables_List_Asked[Delete_Table_Index] + '"' + " ORDER BY" + '"' + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + '"';
+        }
+        if (Delete_DB_Type == 2)
+        {
+            query_U_borders = "SELECT * FROM " + Delete_BD_Tables_List_Asked[Delete_Table_Index] + " ORDER BY " + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + ";";
+        }
         qDebug() << "Запрос на поиск нужной строки - " << query_U_borders;
         SQL_Querry_Model.setQuery(query_U_borders);
 
@@ -94,19 +113,34 @@ void Dialog_SQL_Delete::on_pushButton_OK_clicked()
         // Удаление значений в таблице через Delete
         QSqlRecord Delete_Record;
         QSqlQuery Query_Delete;
-        QString query_vrem_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[Delete_Table_Index] + "\"";
+        QString query_vrem_text;
+        if (Delete_DB_Type == 0)
+        {
+            query_vrem_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[Delete_Table_Index] + "\"";
+        }
+        if (Delete_DB_Type == 2)
+        {
+            query_vrem_text = "SELECT * FROM " + Delete_BD_Tables_List_Asked[Delete_Table_Index] + ";";
+        }
         Query_Delete.exec(query_vrem_text);
         Delete_Record = Query_Delete.record();
         QString query_Delete_text;
         QString boolean_type_QString;
         for (int V = 0; V < (Delete_Fields_Finish - Delete_Fields_Start + 1); ++V)
         {
-            query_Delete_text = "DELETE FROM public.";
-            query_Delete_text += '"';
-            query_Delete_text = query_Delete_text + Delete_BD_Tables_List_Asked[Delete_Table_Index];
-            query_Delete_text.append('"');
-            //query_Delete_text = query_Delete_text + " SET ";
+            if (Delete_DB_Type == 0)
+            {
+                query_Delete_text = "DELETE FROM public.";
+                query_Delete_text += '"';
+                query_Delete_text = query_Delete_text + Delete_BD_Tables_List_Asked[Delete_Table_Index];
+                query_Delete_text.append('"');
+            }
+            if (Delete_DB_Type == 2)
+            {
+                query_Delete_text = "DELETE FROM " + Delete_BD_Tables_List_Asked[Delete_Table_Index];
+            }
 
+            //query_Delete_text = query_Delete_text + " SET ";
             // Убираем последнюю запятую (спасибо ПЗЕ4 :) )
             //query_insert_text.remove((query_insert_text.length() - 1), 3);
             //query_insert_text = query_insert_text + ");";
@@ -114,15 +148,29 @@ void Dialog_SQL_Delete::on_pushButton_OK_clicked()
             //query_Update_text = query_Update_text.left(position);
             // Не требуется, так как у нас не Insert - запрос
             //query_Update_text = query_Update_text.append(");");
+
             // Дополнение запроса Delete
             if ((Delete_Matrix_Tables_FieldTypes[Delete_Table_Index][0] == "int") || (Delete_Matrix_Tables_FieldTypes[Delete_Table_Index][0] == "bool") || (Delete_Matrix_Tables_FieldTypes[Delete_Table_Index][0] == "double"))
             {
-                query_Delete_text = query_Delete_text + " WHERE " + '"' + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + '"' + " = " + Delete_Where_Values[V];
+                if (Delete_DB_Type == 0)
+                {
+                    query_Delete_text = query_Delete_text + " WHERE " + '"' + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + '"' + " = " + Delete_Where_Values[V];
+                }
+                if (Delete_DB_Type == 2)
+                {
+                    query_Delete_text = query_Delete_text + " WHERE " + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + " = " + Delete_Where_Values[V];
+                }
             }
             else
             {
-                query_Delete_text = query_Delete_text + " WHERE " + '"' + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + '"' + " = '" + Delete_Where_Values[V] + "'";
-
+                if (Delete_DB_Type == 0)
+                {
+                    query_Delete_text = query_Delete_text + " WHERE " + '"' + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + '"' + " = '" + Delete_Where_Values[V] + "'";
+                }
+                if (Delete_DB_Type == 2)
+                {
+                    query_Delete_text = query_Delete_text + " WHERE " + Delete_Matrix_Tables_FieldNames[Delete_Table_Index][0] + " = '" + Delete_Where_Values[V] + "';";
+                }
             }
             qDebug() << "Запрос на удаление" << V << query_Delete_text;
             QFile file("output_Delete_Query_Test.txt");
@@ -209,7 +257,14 @@ void Dialog_SQL_Delete::on_lineEdit_strok_start_editingFinished()
 {
     QString query_text;
     QSqlQueryModel Query_Test;
-    query_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[Delete_Table_Index] + "\"";
+    if (Delete_DB_Type == 0)
+    {
+        query_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[Delete_Table_Index] + "\"";
+    }
+    if (Delete_DB_Type == 2)
+    {
+        query_text = "SELECT * FROM " + Delete_BD_Tables_List_Asked[Delete_Table_Index] + ";";
+    }
     Query_Test.setQuery(query_text);
     int w = Query_Test.rowCount();
     Delete_Fields_Start = ui->lineEdit_strok_start->text().toInt();
@@ -237,13 +292,20 @@ void Dialog_SQL_Delete::on_lineEdit_strok_end_editingFinished()
 {
     QString query_text;
     QSqlQueryModel Query_Test;
-    query_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[Delete_Table_Index] + "\"";
+    if (Delete_DB_Type == 0)
+    {
+        query_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[Delete_Table_Index] + "\"";
+    }
+    if (Delete_DB_Type == 2)
+    {
+        query_text = "SELECT * FROM " + Delete_BD_Tables_List_Asked[Delete_Table_Index] + ";";
+    }
     Query_Test.setQuery(query_text);
     int w = Query_Test.rowCount();
     Delete_Fields_Finish = ui->lineEdit_strok_end->text().toInt();
     if ((Delete_Fields_Finish >= Delete_Fields_Start) && (Delete_Fields_Finish < w))
     {
-        qDebug() << "Номер строки, до которой нужно обновить данные - " << Delete_Fields_Finish;
+        qDebug() << "Номер строки, до которой нужно удалить данные - " << Delete_Fields_Finish;
         if (Delete_Fields_Start != NULL)
         {
             ui->lineEdit_tableNow->setText(Delete_BD_Tables_List_Asked[Delete_Table_Index]);
@@ -261,8 +323,9 @@ void Dialog_SQL_Delete::on_lineEdit_strok_end_editingFinished()
 }
 
 // Новая функция для получения данных о таблицах
-void Dialog_SQL_Delete::get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types)
+void Dialog_SQL_Delete::get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types, int DB_Class)
 {
+    Delete_DB_Type = DB_Class;
     // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
     QString query_text;
     QSqlRecord Record_Test;
@@ -276,8 +339,15 @@ void Dialog_SQL_Delete::get_DB_Table_Info(QStringList DB_tables_list, QString **
     qDebug() << "Массив типов полей, полученные данные" << Delete_Matrix_Tables_FieldTypes;
     for (int i = 0; i < Delete_BD_Tables_List_Asked.size(); ++i)
     {
-    //int i = 1;
-        query_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[i] + "\"";
+        //int i = 1;
+        if (DB_Class == 0)
+        {
+            query_text = "SELECT * FROM public.\"" + Delete_BD_Tables_List_Asked[i] + "\"";
+        }
+        if (DB_Class == 2)
+        {
+            query_text = "SELECT * FROM " + Delete_BD_Tables_List_Asked[i] + ";";
+        }
         Query_Test.exec(query_text);
         Record_Test = Query_Test.record();
         for(int j = 0; j < Record_Test.count(); ++j)
@@ -296,28 +366,43 @@ void Dialog_SQL_Delete::get_DB_Table_Info(QStringList DB_tables_list, QString **
 }
 
 // Функция для подключения данных о подключении и установке соединения
-void Dialog_SQL_Delete::get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data)
+void Dialog_SQL_Delete::get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data, int DB_Class)
 {
-    DB = QSqlDatabase::cloneDatabase(DB_conn_data, "PostgreSQL_New_Connect_Delete");
-    qDebug() << "Delete: Полученные данные про DB" << DB;
-    Delete_Transfer_DB_Adress = DB.hostName();
-    qDebug() << "Delete: Полученный адрес БД в Qstring - " << Delete_Transfer_DB_Adress;
-    Delete_Transfer_DB_Port = DB.port();
-    qDebug() << "Delete: Полученный port БД в Qstring" << QString::number(Delete_Transfer_DB_Port);
-    Delete_Transfer_DB_Name = DB.databaseName();
-    qDebug() << "Delete: Полученное имя БД в QString" << Delete_Transfer_DB_Name;
-    Delete_Transfer_DB_User = DB.userName();
-    qDebug() << "Delete: Полученный логин пользователя в QString" << Delete_Transfer_DB_User;
-    Delete_Transfer_DB_Password = DB.password();
-    qDebug() << "Delete: Полученный пароль пользователя в QString" << Delete_Transfer_DB_Password;
+    Delete_DB_Type = DB_Class;
+    if (DB_Class == 0)
+    {
+        DB = QSqlDatabase::cloneDatabase(DB_conn_data, "PostgreSQL_New_Connect_Delete");
+        qDebug() << "Delete: Полученные данные про DB" << DB;
+        Delete_Transfer_DB_Adress = DB.hostName();
+        qDebug() << "Delete: Полученный адрес БД в Qstring - " << Delete_Transfer_DB_Adress;
+        Delete_Transfer_DB_Port = DB.port();
+        qDebug() << "Delete: Полученный port БД в Qstring" << QString::number(Delete_Transfer_DB_Port);
+        Delete_Transfer_DB_Name = DB.databaseName();
+        qDebug() << "Delete: Полученное имя БД в QString" << Delete_Transfer_DB_Name;
+        Delete_Transfer_DB_User = DB.userName();
+        qDebug() << "Delete: Полученный логин пользователя в QString" << Delete_Transfer_DB_User;
+        Delete_Transfer_DB_Password = DB.password();
+        qDebug() << "Delete: Полученный пароль пользователя в QString" << Delete_Transfer_DB_Password;
 
-    qDebug() << "Проверка на открытие соединения с запрошенными параметрами";
-    DB = QSqlDatabase::addDatabase("QPSQL", "DeleteWindowConnect");
-    DB.setHostName(Delete_Transfer_DB_Adress);
-    DB.setPort(Delete_Transfer_DB_Port);
-    DB.setDatabaseName(Delete_Transfer_DB_Name);
-    DB.setUserName(Delete_Transfer_DB_User);
-    DB.setPassword(Delete_Transfer_DB_Password);
+        qDebug() << "Проверка на открытие соединения с запрошенными параметрами";
+        DB = QSqlDatabase::addDatabase("QPSQL", "DeleteWindowConnect");
+        DB.setHostName(Delete_Transfer_DB_Adress);
+        DB.setPort(Delete_Transfer_DB_Port);
+        DB.setDatabaseName(Delete_Transfer_DB_Name);
+        DB.setUserName(Delete_Transfer_DB_User);
+        DB.setPassword(Delete_Transfer_DB_Password);
+    }
+    if (DB_Class == 2)
+    {
+        DB = QSqlDatabase::cloneDatabase(DB_conn_data, "MicrosoftAccess_New_Connect_Delete");
+        qDebug() << "Delete: Полученные данные про DB" << DB;
+        Delete_Transfer_DB_Name = DB.databaseName();
+        qDebug() << "Delete: Полученное имя БД в QString" << Delete_Transfer_DB_Name;
+
+        qDebug() << "Проверка на открытие соединения с запрошенными параметрами";
+        DB = QSqlDatabase::addDatabase("QODBC", "DeleteWindowConnect");
+        DB.setDatabaseName(Delete_Transfer_DB_Name);
+    }
     if (DB.open())
     {
         qDebug() << "DB in Delete is open: " << DB;
