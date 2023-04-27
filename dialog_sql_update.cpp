@@ -169,7 +169,7 @@ WHERE "Column_Int_1" = 0
                 }
                 else
                 {
-                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\nПожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand int - " << Update_int_mass;
                 for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_int); ++i)
@@ -181,7 +181,7 @@ WHERE "Column_Int_1" = 0
             }
             else
             {
-                QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности INT!\n Пожалуйста, переопределите!");
+                QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности INT!\nПожалуйста, переопределите!");
                 return;
             }
         }
@@ -201,7 +201,7 @@ WHERE "Column_Int_1" = 0
                 }
                 else
                 {
-                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\nПожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand real - " << Update_real_mass;
                 for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_real); ++i)
@@ -212,7 +212,7 @@ WHERE "Column_Int_1" = 0
             }
             else
             {
-                QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности REAL!\n Пожалуйста, переопределите!");
+                QMessageBox::critical(this, "ERROR", "Нарушение целевых границ генерируемой последовательности REAL!\nПожалуйста, переопределите!");
                 return;
             }
         }
@@ -233,7 +233,7 @@ WHERE "Column_Int_1" = 0
                 }
                 else
                 {
-                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\nПожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand varchar - " << Update_varchar_mass;
                 for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_varchar); ++i)
@@ -243,7 +243,7 @@ WHERE "Column_Int_1" = 0
             }
             else
             {
-                QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности VARCHAR!\n Пожалуйста, переопределите!");
+                QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности VARCHAR!\nПожалуйста, переопределите!");
                 return;
             }
         }
@@ -264,7 +264,7 @@ WHERE "Column_Int_1" = 0
                 }
                 else
                 {
-                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\nПожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand intBool - " << dop_intBool_mass;
                 for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_boolean); ++i)
@@ -303,7 +303,7 @@ WHERE "Column_Int_1" = 0
                 }
                 else
                 {
-                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\n Пожалуйста, определите тип используемого генератора.");
+                    QMessageBox::critical(this, "ERROR", "Не выбран тип генератора!\nПожалуйста, определите тип используемого генератора.");
                 }
                 qDebug() << "Полученный массив rand bytea - " << Update_bytea_mass;
                 for (int i = 0; i < ((Update_Fields_Finish - Update_Fields_Start + 1) * k_bytea); ++i)
@@ -313,7 +313,7 @@ WHERE "Column_Int_1" = 0
             }
             else
             {
-                QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности BYTEA!\n Пожалуйста, переопределите!");
+                QMessageBox::critical(this, "ERROR", "Не указаны размер последовательности BYTEA!\nПожалуйста, переопределите!");
                 return;
             }
         }
@@ -556,7 +556,7 @@ WHERE "Column_Int_1" = 0
     }
     else
     {
-        QMessageBox::critical(this, "ERROR", "Не указаны границы обновляемых записей!\n Пожалуйста, укажите!");
+        QMessageBox::critical(this, "ERROR", "Не указаны границы обновляемых записей!\nПожалуйста, укажите!");
         return;
     }
     /* OLD_UPDATE
@@ -566,7 +566,7 @@ WHERE "Column_Int_1" = 0
         if(up_student_id == "")
         {
             // Сообщение - предупреждение пользователю
-            QMessageBox::critical(this, "ERROR", "Не указан идентификатор студента. \n Изменения не будут сохранены.");
+            QMessageBox::critical(this, "ERROR", "Не указан идентификатор студента. \nИзменения не будут сохранены.");
             // Возврат к основному окну
             this->close();
             emit UpWindow();
@@ -674,7 +674,7 @@ void Dialog_SQL_Update::on_tabWidget_currentChanged(int index)
     if(index == 0)
     {
         // Сообщение - предупреждение пользователю
-        QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные. \n Изменения будут применены сразу.\n Вводите только те данные, которые хотите обновить.");
+        QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные.\nИзменения будут применены сразу.\nВводите только те данные, которые хотите обновить.");
         qDebug() << "Страница обновления данных в выбранной таблице";
         //Up_Table_Index = 0;
         //qDebug() << "Обновление в таблице Students " << Up_Table_Index;
@@ -696,7 +696,7 @@ void Dialog_SQL_Update::on_tabWidget_Update_currentChanged(int index)
     if(index == 0)
     {
         // Сообщение - предупреждение пользователю
-        QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные. \n Изменения будут применены сразу.\n Вводите только те данные, которые хотите обновить.");
+        QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные.\nИзменения будут применены сразу.\nВводите только те данные, которые хотите обновить.");
 
         //Up_Table_Index = 0;
         //qDebug() << "Обновление в таблице Students " << Up_Table_Index;
@@ -837,7 +837,7 @@ void Dialog_SQL_Update::on_lineEdit_strok_start_editingFinished()
     vrem = ui->lineEdit_kolvo_new_strok->text().toInt();
     if ((vrem < 1) || (vrem > 300000))
     {
-        QMessageBox::critical(this, "ERROR", "Введено неккоректное количество новых строк!\n Пожалуйста, введите число от 1 до 300 000.");
+        QMessageBox::critical(this, "ERROR", "Введено неккоректное количество новых строк!\nПожалуйста, введите число от 1 до 300 000.");
         Insert_Fields_Number = 0;
         ui->lineEdit_kolvo_new_strok->clear();
     }
@@ -866,7 +866,7 @@ void Dialog_SQL_Update::on_lineEdit_strok_start_editingFinished()
     }
     else
     {
-        QMessageBox::critical(this, "ERROR", "Введен неправильный номер начальной строки! /n Пожалуйста, переопределите.");
+        QMessageBox::critical(this, "ERROR", "Введен неправильный номер начальной строки!\nПожалуйста, переопределите.");
         ui->lineEdit_strok_start->clear();
         Update_Fields_Start = NULL;
     }
@@ -894,7 +894,7 @@ void Dialog_SQL_Update::on_lineEdit_strok_end_editingFinished()
     }
     else
     {
-        QMessageBox::critical(this, "ERROR", "Введен неправильный номер конечной строки! /n Пожалуйста, переопределите.");
+        QMessageBox::critical(this, "ERROR", "Введен неправильный номер конечной строки!\nПожалуйста, переопределите.");
         ui->lineEdit_strok_end->clear();
         Update_Fields_Finish = NULL;
     }

@@ -197,7 +197,7 @@ void Dialog_SQL_Delete::on_pushButton_OK_clicked()
     }
     else
     {
-        QMessageBox::critical(this, "ERROR", "Не указаны границы обновляемых записей!\n Пожалуйста, укажите!");
+        QMessageBox::critical(this, "ERROR", "Не указаны границы обновляемых записей!\nПожалуйста, укажите!");
         return;
     }
     /* OLD DELETE
@@ -279,7 +279,7 @@ void Dialog_SQL_Delete::on_lineEdit_strok_start_editingFinished()
     }
     else
     {
-        QMessageBox::critical(this, "ERROR", "Введен неправильный номер начальной строки! /n Пожалуйста, переопределите.");
+        QMessageBox::critical(this, "ERROR", "Введен неправильный номер начальной строки!\nПожалуйста, переопределите.");
         ui->lineEdit_strok_start->clear();
         ui->lineEdit_tableNow->setText("Диапазон?");
         ui->lineEdit_isDEnable->setText("Заблокировано");
@@ -314,7 +314,7 @@ void Dialog_SQL_Delete::on_lineEdit_strok_end_editingFinished()
     }
     else
     {
-        QMessageBox::critical(this, "ERROR", "Введен неправильный номер конечной строки! /n Пожалуйста, переопределите.");
+        QMessageBox::critical(this, "ERROR", "Введен неправильный номер конечной строки!\nПожалуйста, переопределите.");
         ui->lineEdit_strok_end->clear();
         ui->lineEdit_tableNow->setText("Диапазон?");
         ui->lineEdit_isDEnable->setText("Заблокировано");
