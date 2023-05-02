@@ -424,14 +424,16 @@ void LoginWindow::on_tabWidget_tabBarClicked(int index)
     }
     if (index == 1)
     {
-        DB_Login_Type = 1;
-        qDebug() << "Current database type - MySQL";
-    }
-    if (index == 2)
-    {
         DB_Login_Type = 2;
         qDebug() << "Current database type - Microsoft Access";
     }
+    /*
+    if (index == 2)
+    {
+        DB_Login_Type = 1;
+        qDebug() << "Current database type - Microsoft Access";
+    }
+    */
 }
 
 void LoginWindow::changeIndex(int i)
