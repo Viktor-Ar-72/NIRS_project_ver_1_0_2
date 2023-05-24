@@ -40,15 +40,12 @@ public:
     ~SQL_Window_Main();
 
     // Для получения информации о БД из окна логина
-    //void get_DB_data_from_login(QSqlDatabase DB_Data);
-    // Почему - то даже при успешном переносе не хочет открываться QSqlDatabase(invalid)
-    // Теперь работает
     void get_DB_data_from_login(QSqlDatabase DB_Data, int DB_Type);
 
     // Передача данных о текущей таблице в insert
     int take_list_of_Tables(int Current_table_number_for_insert);
 
-// Инициализация для второго окна
+// Инициализация для первого окна
 signals:
     void firstWindow();
 
@@ -81,18 +78,13 @@ private:
     QSqlQuery *QUERRY;
     QSqlTableModel *TABLE_MODEL;
     QSqlQueryModel *QUERY_MODEL;
-
     int N_ActiveRow;
-    void changeIndex(int i);
 
     // Инициализация окна для вставки значений
-    // Временно закомменчено - ошибка сборки
     Dialog_SQL_Insert *InsertWindow;
     // Инициализация окна для удаления значений
     Dialog_SQL_Delete *DeleteWindow;
     // Инициализация окна для обновления значений
-    //dialog_sql_update *UpdateWindow;
-    //dialog_sql_update *UpdateWindow;
     Dialog_SQL_Update *UpdateWindow;
 
 };

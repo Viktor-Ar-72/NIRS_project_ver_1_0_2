@@ -35,22 +35,15 @@ public:
 private slots:
     void on_pushButton_clicked();
 
-    //void on_login_line_editingFinished();
-
-    //void on_password_input_editingFinished();
-
     void on_pushButton_2_clicked();
 
     void on_tabWidget_tabBarClicked(int index);
 
-    // Открытие файлового браузера для файла конфигурации PSQL
+    // Открытие файлового браузера для файла конфигурации PSQL / MS Access
     void on_pushButton_PSQL_clicked();
 
     // Вызов чек-бокса для демонстрации, из файла ли будут взяты данные подключения
-    void on_checkBox_stateChanged(int arg1);
-
-    // Открытие файлового браузера для файла конфигурации MySQL
-    void on_pushButton_MySQL_clicked();
+    void on_checkBox_stateChanged();
 
     void on_pushButton_ODBC_clicked();
 
@@ -62,7 +55,6 @@ private:
     SQL_Window_Main *SQLWindow;
     // Инициализация объекта базы данных
     QSqlDatabase DB_login;
-    // Функция для tabBar
-    void changeIndex(int index);
+
 };
 #endif // LOGINWINDOW_H

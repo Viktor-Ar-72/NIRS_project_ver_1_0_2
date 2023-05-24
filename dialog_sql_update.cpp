@@ -3,22 +3,18 @@
 #include <sql_window_main.h>
 #include <QCompleter>
 #include <QSqlRecord>
-#include <QFile>
 // Для преобразования типа переменной
 #include <type_traits>
 #include <QVariant>
 
-//dialog_sql_update::dialog_sql_update(QWidget *parent) :
 Dialog_SQL_Update::Dialog_SQL_Update(QWidget *parent) :
     QDialog(parent),
-    //ui(new Ui::dialog_sql_update)
     ui(new Ui::Dialog_SQL_Update)
 {
     ui->setupUi(this);
 
     //  Инициализация lineEdit_tableNow
     ui->lineEdit_tableNow->setText("Тип генератора?");
-    //ui->lineEdit_tableNow->setModified(0);
     ui->lineEdit_tableNow->setReadOnly(1);
     // Настройка цвета
     QPalette *palette = new QPalette();
@@ -32,16 +28,10 @@ Dialog_SQL_Update::Dialog_SQL_Update(QWidget *parent) :
     QUERY_MODEL->setQuery(query_text);
 }
 
-//dialog_sql_update::~dialog_sql_update()
 Dialog_SQL_Update::~Dialog_SQL_Update()
 {
     delete ui;
 }
-// Предел генерирования случайного числа
-//int Colvo_Unic = 100;
-int Up_Colvo_Unic = 10;
-// Глобальный массив для работы с уникальностью номеров
-int *up_variants_number = new int[Up_Colvo_Unic];
 
 // Для настройки соединения
 // Для работы с присланными таблицами
@@ -61,31 +51,12 @@ int Update_Transfer_DB_Port;
 // Глобальные переменные для формы обновления данных
 int Update_Table_Index;
 
-// Глобальные переменные для работы с формами
-//QString up_student_id, up_full_name, up_student_group, up_student_variant;
-//QString up_task_id, up_task_complication, up_task_text, up_task_variant;
-//int Up_Table_Index;
-
 int Update_Fields_Start, Update_Fields_Finish, Update_int_left = 0, Update_int_right = 0, Update_varchar_lenght = 0,
 Update_byteA_lenght = 0, Update_use_boolean;
 double Update_real_left, Update_real_right;
 
 void Dialog_SQL_Update::on_pushButton_OK_clicked()
 {
-    /*
-     * PostgreSQL
-     * UPDATE public."TestTable_1"
-SET "Column_Int_1" = 5, "Column_Int_2" = 10, "Column_Text" = 'Test Update text', "Column_Bool" = true
-WHERE "Column_Int_1" = 0
-     *
-     * Microsoft Access
-     * UPDATE Test_Table_1 SET "Column_Int_2" = 43, "Column_Text" = 'Update_text', "Column_Double_1" = 4.13748,
-     * "Column_Double_2" = 2.54518 WHERE "Column_Int_1" = 9;
-     * Column_Int_1 не даёт обновлять - типо необновляемый Primary.
-     * Ещё пример, на этот раз сгенерированный системой)(только убрал Column_Int_1)
-     * UPDATE Test_Table_1 SET "Column_Int_2" = 15, "Column_Text" = 'RfUIE', "Column_Double_1" = 7.933913, "Column_Double_2" = 8.499814 WHERE "Column_Int_1" = 9
-     */
-
     QString query_text;
     QSqlQueryModel Query_Test;
     if (DB_Update_Type == 0)
@@ -98,11 +69,9 @@ WHERE "Column_Int_1" = 0
     }
     Query_Test.setQuery(query_text);
     int table_size = Query_Test.rowCount();
-    //if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start) >= 0))
-    if ((Update_Fields_Start >= 0) && (Update_Fields_Finish > 0) && ((Update_Fields_Finish - Update_Fields_Start + 1) > 0) && (Update_Fields_Finish < table_size))
+    if ((Update_Fields_Start >= 0) && (Update_Fields_Finish >= 0) && ((Update_Fields_Finish - Update_Fields_Start + 1) > 0) && (Update_Fields_Finish < table_size))
     {
         // Создаём N-ое количество массивов, для каждого типа столбца текущей таблицы
-        // Для вывода матрицы пока что пользуюсь таким способом - при использовани count() или size() вылетает почему - то
         QString query_text;
         QSqlRecord Record_Test;
         QSqlQuery Query_Test;
@@ -116,7 +85,6 @@ WHERE "Column_Int_1" = 0
         }
         Query_Test.exec(query_text);
         Record_Test = Query_Test.record();
-        //for (int R = 0; R < Insert_Matrix_Tables_FieldNames[Insert_Table_Index]->count() - 1; ++R)
         // Переменные для расчёта количества элементов
         int k_int = 0; int k_varchar = 0; int k_real = 0; int k_bytea = 0; int k_boolean = 0;
         char int_use = 'n'; char char_use = 'n'; char real_use = 'n'; char bytea_use = 'n';
@@ -177,7 +145,6 @@ WHERE "Column_Int_1" = 0
                     qDebug() << "Полученный элемент INTEGER " << i << " равен = " << Update_int_mass[i];
 
                 }
-
             }
             else
             {
@@ -220,7 +187,6 @@ WHERE "Column_Int_1" = 0
         if (char_use == 'y')
         {
             // Заполнение генератора Varchar
-            //if ((Update_int_left != Update_int_right) && (ui->lineEdit_int_left->text() != "") && (ui->lineEdit_int_right->text() != ""))
             if(Update_varchar_lenght != 0)
             {
                 if(Update_GenType == 1)
@@ -290,7 +256,6 @@ WHERE "Column_Int_1" = 0
         }
         if (bytea_use == 'y')
         {
-            //qDebug() << "Будет использоватьмся массив byteA";
             if(Update_byteA_lenght != 0)
             {
                 if(Update_GenType == 1)
@@ -318,7 +283,6 @@ WHERE "Column_Int_1" = 0
             }
         }
 
-
         QSqlQueryModel SQL_Querry_Model;
         QString query_U_borders;
         if (DB_Update_Type == 0)
@@ -333,73 +297,21 @@ WHERE "Column_Int_1" = 0
         qDebug() << "Запрос на поиск нужной строки - " << query_U_borders;
         SQL_Querry_Model.setQuery(query_U_borders);
 
-        // Test 1
-        //QString Test_string = "int";
-        //std::conditional<Test_string == "int", int, double>::type k;
-        // Test 2
-        /*
-        QString Test_string = "int";
-        QVariant value;
-        switch (qHash(Test_string)) {
-            case qHash("int"):
-                value = QVariant::fromValue<int>(0);
-                break;
-            case qHash("double"):
-                value = QVariant::fromValue<double>(0.0);
-                break;
-            case qHash("QString"):
-                value = QVariant::fromValue<QString>("");
-                break;
-            default:
-                // неизвестный тип
-                break;
-        }
-        */
-        // Test 3
-        /*
-        enum Type { INT, DOUBLE, STRING };
-        Type type = INT;
-        switch(type) {
-            case INT:
-                int x = 0;
-                break;
-            case DOUBLE:
-                double y = 0.0;
-                break;
-            case STRING:
-                QString s = "";
-                break;
-            default:
-                break;
-        }
-        */
-
         QString* Update_Where_Values = new QString[(Update_Fields_Finish - Update_Fields_Start + 1)];
 
-        //for (int i = 0; i < SQL_Querry_Model.rowCount(); ++i)
         int m = 0;
         for (int i = 0; i < SQL_Querry_Model.rowCount(); ++i)
         {
-            //int m = 0; //qDebug() << "Строка " << i;
             if (i >= Update_Fields_Start && i <= Update_Fields_Finish)
             {
                 qDebug() << "Найдена " << m << " строка для обновления на " << i << " месте";
-                //qDebug() << SQL_Querry_Model.record().value(Update_Matrix_Tables_FieldNames[Update_Table_Index][0]).toString();
                 qDebug() << SQL_Querry_Model.record(i).value(Update_Matrix_Tables_FieldNames[Update_Table_Index][0]).toString();
                 Update_Where_Values[m] = SQL_Querry_Model.record(i).value(Update_Matrix_Tables_FieldNames[Update_Table_Index][0]).toString();
                 m += 1;
             }
-
-            //int ID = SQL_Querry_Model.record(i).value("ID").toInt();
-            //QString Data = SQL_Querry_Model.record(i).value("Data").toString();
-            //qDebug() << ID << Data;
         }
 
         // Вставка значений в таблицу через Update
-        // Testes
-        //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" (Column_Int_1, Column_Int_2, Column_Text, Column_Bool) VALUES ('0'::integer, '0'::integer, 'test_insert'::text, 'TRUE'::boolean)";
-        // Такая реализаия работает. Надо придумать, как редактировать состав вставляемых данных
-        //QString query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (0, 0, 'Test_insert_1', TRUE)";
         QSqlRecord Update_Record;
         QSqlQuery Query_Update;
         QString query_vrem_text;
@@ -413,17 +325,10 @@ WHERE "Column_Int_1" = 0
         }
         Query_Update.exec(query_vrem_text);
         Update_Record = Query_Update.record();
-        //int h = Record_Test.count();
-        //qDebug() << "В данной таблице необходимо вставить " << h << " столбцов";
         QString query_Update_text;
         QString boolean_type_QString;
-        //for (int V = 0; V < (Update_Fields_Finish - Update_Fields_Start); ++V)
         for (int V = 0; V < (Update_Fields_Finish - Update_Fields_Start + 1); ++V)
         {
-            //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (";
-            //query_insert_text = "";
-            // Создание шаблона запроса. И снова спасибо ПЗЕ4:)
-            //query_Update_text = "Insert INTO public.";
             if (DB_Update_Type == 0)
             {
             query_Update_text = "UPDATE public.";
@@ -439,7 +344,6 @@ WHERE "Column_Int_1" = 0
 
             // Создание дополнительных переменных для доп.циклов
             int start_index_int = V * k_int;
-            //int end_index_int = start_index_int + k_int;
             int start_index_varchar = V * k_varchar;
             int start_index_real = V * k_real;
             int start_index_bool = V * k_boolean;
@@ -447,20 +351,13 @@ WHERE "Column_Int_1" = 0
 
             for (int A = 0; A < Update_Record.count(); ++A)
             {
-
                 if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "int")
                 {
-                    //query_insert_text = query_insert_text + QString(Insert_int_mass[Insert_Fields_Number]) + ", ";
-                    //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение int, ";
-                    //query_insert_text = query_insert_text + QString::number(Insert_int_mass[V]) + ", ";
                     query_Update_text = query_Update_text + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][A] + '"' + " = " + QString::number(Update_int_mass[start_index_int]) + ", ";
                     ++start_index_int;
                 }
                 else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "QString")
                 {
-                    //query_insert_text = query_insert_text + Insert_varchar_mass[Insert_Fields_Number] + ", ";
-                    //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение QString, ";
-                    //query_insert_text = query_insert_text + "'" + Insert_varchar_mass[V] + "', ";
                     query_Update_text = query_Update_text + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][A] + '"' + " = '" + Update_varchar_mass[start_index_varchar] + "', ";
                     ++start_index_varchar;
                 }
@@ -472,24 +369,14 @@ WHERE "Column_Int_1" = 0
                 }
                 else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "ByteA")
                 {
-                    //query_insert_text = query_insert_text + "'" + R"(\x)" + Insert_bytea_mass[start_index_bytea] + "', ";
                     query_Update_text = query_Update_text + '"' + Update_Matrix_Tables_FieldNames[Update_Table_Index][A] + '"' + " = " + "'";
                     query_Update_text += QString::fromUtf8("\x5C\x78");
-                    // int index = query_insert_text.lastIndexOf("\\");
-                    // query_insert_text.replace(index, 1, "\x5C\x78");
-                    // query_insert_text.remove(0, 1);
-                    // query_insert_text.prepend("'");
                     query_Update_text = query_Update_text + Update_bytea_mass[start_index_bytea] + "', ";
                     ++start_index_bytea;
-                    // Test byteA input check
                 }
                 else if(Update_Matrix_Tables_FieldTypes[Update_Table_Index][A] == "bool")
                 {
-                    //query_insert_text = query_insert_text + Insert_bool_mass[Insert_Fields_Number] + ")";
-                    //query_insert_text = query_insert_text + "Нужно в столбец " + QString::number(A) + " добавить значение bool, ";
-                    //QString q = "";
                     boolean_type_QString = "";
-                    //if (Insert_bool_mass[V] == true)
                     if (Update_bool_mass[start_index_bool] == true)
                     { boolean_type_QString = "TRUE"; }
                     else
@@ -498,17 +385,11 @@ WHERE "Column_Int_1" = 0
                     ++start_index_bool;
                 }
                 else {
-                    // На всякий случай заккоментил, чтобы не было лишнего Warning
-                    //query_insert_text = query_insert_text;
                 }
             }
-            // Убираем последнюю запятую (спасибо ПЗЕ4 :) )
-            //query_insert_text.remove((query_insert_text.length() - 1), 3);
-            //query_insert_text = query_insert_text + ");";
+            // Убираем последнюю запятую
             int position = query_Update_text.lastIndexOf(QChar(','));
             query_Update_text = query_Update_text.left(position);
-            // Не требуется, так как у нас не Insert - запрос
-            //query_Update_text = query_Update_text.append(");");
             // Дополнение запроса Update
             if ((Update_Matrix_Tables_FieldTypes[Update_Table_Index][0] == "int") || (Update_Matrix_Tables_FieldTypes[Update_Table_Index][0] == "bool") || (Update_Matrix_Tables_FieldTypes[Update_Table_Index][0] == "double"))
             {
@@ -520,25 +401,11 @@ WHERE "Column_Int_1" = 0
 
             }
             qDebug() << "Запрос на вставку" << V << query_Update_text;
-            QFile file("output_Update_Query_Test.txt");
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                QTextStream out(&file);
-                out << query_Update_text; // записываем содержимое строки в файл
-                file.close();
-            }
 
-
-            // Если временно закомменчено - значит, происходит тест на обновление данных
+            // Обновление данных
             QUERY_MODEL->setQuery(query_Update_text);
-            qDebug() << "Запрос на вставку" << V << "выполнен.";
+            qDebug() << "Запрос на обновление" << V << "выполнен.";
         }
-
-
-
-        //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (" + QString(rand() % 255) + ", " + QString(rand() % 255) + ", 'Test_insert_1', TRUE)";
-        // Сверка с генерированными запросами
-        //query_insert_text = "INSERT INTO public.\"" + Insert_BD_Tables_List_Asked[Insert_Table_Index] + "\" VALUES (0, 0, 'Test_insert_1', TRUE)";
-        //qDebug() << "Запрос на вставку" << 9 << query_insert_text;
 
         query_Update_text = ""; // Заглушка
         QUERY_MODEL->setQuery(query_Update_text);
@@ -559,136 +426,15 @@ WHERE "Column_Int_1" = 0
         QMessageBox::critical(this, "ERROR", "Не указаны границы обновляемых записей!\nПожалуйста, укажите!");
         return;
     }
-    /* OLD_UPDATE
-    //qDebug() << "44";
-    if (Up_Table_Index == 0)
-    {
-        if(up_student_id == "")
-        {
-            // Сообщение - предупреждение пользователю
-            QMessageBox::critical(this, "ERROR", "Не указан идентификатор студента. \nИзменения не будут сохранены.");
-            // Возврат к основному окну
-            this->close();
-            emit UpWindow();
-        }
-        // UPDATE public."Students" SET full_name = 'Test_Update'::text, student_group = 'Test_Update'::text, variant = '8'::integer WHERE student_id = 9;
-        else
-        {
-            if(up_full_name == "")
-            {
-
-                // Old tests
-                //QUERY_MODEL->setQuery("SELECT * FROM public.\"Students\" WHERE student_id = "+up_student_id);
-                //QUERY_MODEL->
-                //up_full_name = QString::number(QUERY_MODEL->rowCount());
-
-                QUERY_MODEL->setQuery("SELECT * FROM public.\"Students\" WHERE student_id = " + up_student_id);
-                up_full_name = QUERY_MODEL->record(0).value("full_name").toString();
-                qDebug() << "Текущее значение up_full_name = " << up_full_name;
-            }
-            if(up_student_group == "")
-            {
-                QUERY_MODEL->setQuery("SELECT * FROM public.\"Students\" WHERE student_id = " + up_student_id);
-                up_student_group = QUERY_MODEL->record(0).value("student_group").toString();
-                qDebug() << "Текущее значение up_student_group = " << up_student_group;
-            }
-            if(up_student_variant == "")
-            {
-                QUERY_MODEL->setQuery("SELECT * FROM public.\"Students\" WHERE student_id = " + up_student_id);
-                up_student_variant = QUERY_MODEL->record(0).value("variant").toString();
-                qDebug() << "Текущее значение up_student_variant = " << up_student_variant;
-            }
-
-            QUERY_MODEL->setQuery("UPDATE public.\"Students\" SET "
-                                  "full_name = '" + up_full_name + "'::text, "
-                                  "student_group = '" + up_student_group + "'::text, "
-                                  "variant = '" + up_student_variant + "'::integer "
-                                  "WHERE student_id = " + up_student_id +";");
-            qDebug() << "Success Update Query for Students";
-            // Очистка окон - но временно закомментил, чтобы пользователь в случае чего мог понять, с какими данными он работал раньше
-            //ui->lineEdit_student_id->clear();
-            //ui->lineEdit_task_id->clear();
-            // Возврат к основному окну
-            this->close();
-            emit UpWindow();
-        }
-    }
-    if (Up_Table_Index == 1)
-    {
-        if(up_task_id == "")
-        {
-            // Сообщение - предупреждение пользователю
-            QMessageBox::critical(this, "ERROR", "Не указан идентификатор задания. \n Изменения не будут сохранены.");
-            // Возврат к основному окну
-            this->close();
-            emit UpWindow();
-        }
-        else
-        {
-            if(up_task_complication == "")
-            {
-                QUERY_MODEL->setQuery("SELECT * FROM public.\"Tasks\" WHERE task_id = " + up_task_id);
-                up_task_complication = QUERY_MODEL->record(0).value("complication").toString();
-                qDebug() << "Текущее значение up_task_complication = " << up_task_complication;
-            }
-            if(up_task_text == "")
-            {
-                QUERY_MODEL->setQuery("SELECT * FROM public.\"Tasks\" WHERE task_id = " + up_task_id);
-                up_task_text = QUERY_MODEL->record(0).value("task_text").toString();
-                qDebug() << "Текущее значение up_task_text = " << up_task_text;
-            }
-            if(up_task_variant == "")
-            {
-                QUERY_MODEL->setQuery("SELECT * FROM public.\"Tasks\" WHERE task_id = " + up_task_id);
-                up_task_variant = QUERY_MODEL->record(0).value("var_number").toString();
-                qDebug() << "Текущее значение up_task_variant = " << up_task_variant;
-            }
-
-            QUERY_MODEL->setQuery("UPDATE public.\"Tasks\" SET "
-                                  "complication = '" + up_task_complication + "'::integer, "
-                                  "task_text = '" + up_task_text + "'::text, "
-                                  "var_number = '" + up_task_variant + "'::integer "
-                                  "WHERE task_id = " + up_task_id +";");
-            qDebug() << "Success Update Query for Tasks";
-            // Возврат к основному окну
-            this->close();
-            emit UpWindow();
-        }
-    }
-    */
 }
 
 
 void Dialog_SQL_Update::on_pushButton_Esc_clicked()
 {
-
     // Возврат к основному окну
     this->close();
     emit UpWindow();
 }
-
-
-void Dialog_SQL_Update::on_tabWidget_currentChanged(int index)
-{
-
-    if(index == 0)
-    {
-        // Сообщение - предупреждение пользователю
-        QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные.\nИзменения будут применены сразу.\nВводите только те данные, которые хотите обновить.");
-        qDebug() << "Страница обновления данных в выбранной таблице";
-        //Up_Table_Index = 0;
-        //qDebug() << "Обновление в таблице Students " << Up_Table_Index;
-    }
-    else if (index == 1)
-    {
-        //Up_Table_Index = 1;
-       // qDebug() << "Обновление в таблице Tasks " << Up_Table_Index;
-        qDebug() << "Окно справки";
-    }
-}
-
-void Dialog_SQL_Update::changeIndex(int i)
-{    i++;    }
 
 void Dialog_SQL_Update::on_tabWidget_Update_currentChanged(int index)
 {
@@ -697,15 +443,10 @@ void Dialog_SQL_Update::on_tabWidget_Update_currentChanged(int index)
     {
         // Сообщение - предупреждение пользователю
         QMessageBox::warning(this, "WARNING", "Будьте осторожны, вводя новые данные.\nИзменения будут применены сразу.\nВводите только те данные, которые хотите обновить.");
-
-        //Up_Table_Index = 0;
-        //qDebug() << "Обновление в таблице Students " << Up_Table_Index;
         qDebug() << "Окно обновления данных в выбранной таблице";
     }
     else if (index == 1)
     {
-        //Up_Table_Index = 1;
-        //qDebug() << "Обновление в таблице Tasks " << Up_Table_Index;
         qDebug() << "Окно справки в форме Update";
     }
 }
@@ -726,7 +467,6 @@ void Dialog_SQL_Update::get_DB_Table_Info(QStringList DB_tables_list, QString **
     qDebug() << "Массив типов полей, полученные данные" << Update_Matrix_Tables_FieldTypes;
     for (int i = 0; i < Update_BD_Tables_List_Asked.size(); ++i)
     {
-        //int i = 1;
         if (DB_Class == 0)
         {
             query_text = "SELECT * FROM public.\"" + Update_BD_Tables_List_Asked[i] + "\"";
@@ -737,7 +477,6 @@ void Dialog_SQL_Update::get_DB_Table_Info(QStringList DB_tables_list, QString **
         }
         Query_Test.exec(query_text);
         Record_Test = Query_Test.record();
-        //for (int j = 0; j < Insert_Matrix_Tables_FieldNames[i]->count() - 1; ++j)
         for(int j = 0; j < Record_Test.count(); ++j)
         {
 
@@ -751,8 +490,6 @@ void Dialog_SQL_Update::get_DB_Table_Info(QStringList DB_tables_list, QString **
     Update_Table_Index = SQL_Window_Main().take_list_of_Tables(vrem_number);
     qDebug() << "Согласно полученным данным, обновление будет вестись в таблицу с индексом" << Update_Table_Index;
     qDebug() << "Это таблица" << Update_BD_Tables_List_Asked[Update_Table_Index];
-    //QString text_for_lineEdit = Insert_BD_Tables_List_Asked[Insert_Table_Index];
-    //ui->lineEdit_tableNow->setText(text_for_lineEdit);
 }
 
 // Функция для подключения данных о подключении и установке соединения
@@ -832,21 +569,6 @@ void Dialog_SQL_Update::on_comboBox_algoritms_activated(int index)
 
 void Dialog_SQL_Update::on_lineEdit_strok_start_editingFinished()
 {
-    /*
-    int vrem;
-    vrem = ui->lineEdit_kolvo_new_strok->text().toInt();
-    if ((vrem < 1) || (vrem > 300000))
-    {
-        QMessageBox::critical(this, "ERROR", "Введено неккоректное количество новых строк!\nПожалуйста, введите число от 1 до 300 000.");
-        Insert_Fields_Number = 0;
-        ui->lineEdit_kolvo_new_strok->clear();
-    }
-    else
-    {
-        Insert_Fields_Number = vrem;
-    }
-    qDebug() << "Количество строк, которые хочет внести пользователь - " << Insert_Fields_Number;
-    */
     QString query_text;
     QSqlQueryModel Query_Test;
     if (DB_Update_Type == 0)
@@ -868,7 +590,7 @@ void Dialog_SQL_Update::on_lineEdit_strok_start_editingFinished()
     {
         QMessageBox::critical(this, "ERROR", "Введен неправильный номер начальной строки!\nПожалуйста, переопределите.");
         ui->lineEdit_strok_start->clear();
-        Update_Fields_Start = NULL;
+        Update_Fields_Start = std::numeric_limits<int>::quiet_NaN();
     }
 }
 
@@ -896,10 +618,9 @@ void Dialog_SQL_Update::on_lineEdit_strok_end_editingFinished()
     {
         QMessageBox::critical(this, "ERROR", "Введен неправильный номер конечной строки!\nПожалуйста, переопределите.");
         ui->lineEdit_strok_end->clear();
-        Update_Fields_Finish = NULL;
+        Update_Fields_Finish = std::numeric_limits<int>::quiet_NaN();
     }
 }
-
 
 void Dialog_SQL_Update::on_lineEdit_int_left_editingFinished()
 {
@@ -946,7 +667,7 @@ void Dialog_SQL_Update::on_lineEdit_bytea_lenght_editingFinished()
     else
     {
         QMessageBox::critical(this, "ERROR", "Внимание: длина генерируемой последовательности ByteA должна быть чётной!");
-        Update_byteA_lenght = NULL;
+        Update_byteA_lenght = std::numeric_limits<int>::quiet_NaN();
         ui->lineEdit_bytea_lenght->clear();
     }
 }
@@ -971,13 +692,6 @@ int* Dialog_SQL_Update::Up_VihrMersenna_Gen_Int(int* getted_rand_mass, int rasme
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
-    //std::mt19937_64 engine;
-    //std::random_device device;
-    //engine.seed(device());
-
-    //std::mt19937_64 engine(std::random_device{}());
-
-    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
     engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
@@ -986,19 +700,13 @@ int* Dialog_SQL_Update::Up_VihrMersenna_Gen_Int(int* getted_rand_mass, int rasme
     {
         getted_rand_mass[i] = gen_VM_left_edge + engine() % (gen_VM_right_edge + 1 - gen_VM_left_edge);
     }
-    return getted_rand_mass;
+
     engine.seed();
+    return getted_rand_mass;
 }
 
 int* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_Int(int* getted_rand_mass, int rasmer, int gen_MM_left_edge, int gen_MM_right_edge)
 {
-    // Инициализация привязки устройства
-    //std::ranlux24 engine;
-    //std::random_device device;
-    //engine.seed(device());
-
-    //std::mt19937_64 engine(std::random_device{}());
-
     // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
@@ -1019,21 +727,15 @@ int* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_Int(int* getted_rand_mass, int r
         getted_rand_mass[i] = matrix_3[P_3_3];
         matrix_3[P_3_3] = P_3_1;
     }
-    return getted_rand_mass;
+
     delete[] matrix_3;
     engine.seed();
+    return getted_rand_mass;
 }
 
 double* Dialog_SQL_Update::Up_VihrMersenna_Gen_Real(double *getted_rand_mass, int rasmer, double gen_VM_left_edge, double gen_VM_right_edge)
 {
     // Инициализация зерна генератора для Вихря Мерсенна
-    // Инициализация привязки устройства
-    //std::mt19937_64 engine;
-    //std::random_device device;
-    //engine.seed(device());;
-
-    //std::mt19937_64 engine(std::random_device{}());
-
     // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
@@ -1052,13 +754,6 @@ double* Dialog_SQL_Update::Up_VihrMersenna_Gen_Real(double *getted_rand_mass, in
 
 double* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_Real(double *getted_rand_mass, int rasmer, double gen_MM_left_edge, double gen_MM_right_edge)
 {
-    // Инициализация привязки устройства
-    //std::ranlux24 engine;
-    //std::random_device device;
-    //engine.seed(device());
-
-    //std::mt19937_64 engine(std::random_device{}());
-
     // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
@@ -1095,13 +790,6 @@ QString* Dialog_SQL_Update::Up_VihrMersenna_Gen_Char(QString *massiv_gen_numbers
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
-    //std::mt19937_64 engine;
-    //std::random_device device;
-    //engine.seed();
-
-    //std::mt19937_64 engine(std::random_device{}());
-
-    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
     engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
@@ -1135,13 +823,6 @@ QString* Dialog_SQL_Update::Up_VihrMersenna_Gen_Char(QString *massiv_gen_numbers
 
 QString* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_Char(QString *massiv_gen_numbers, int rasmer, int length, int gen_MM_left_edge, int gen_MM_right_edge)
 {
-    // Инициализация привязки устройства
-    //std::ranlux24 engine;
-    //std::random_device device;
-    //engine.seed(device());
-
-    //std::mt19937_64 engine(std::random_device{}());
-
     // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
@@ -1203,13 +884,6 @@ QString* Dialog_SQL_Update::Up_VihrMersenna_Gen_ByteA(QString *massiv_gen_number
 {
     // Инициализация зерна генератора для Вихря Мерсенна
     // Инициализация привязки устройства
-    //std::mt19937_64 engine;
-    //std::random_device device;
-    //engine.seed();
-
-    //std::mt19937_64 engine(std::random_device{}());
-
-    // Инициализация привязки устройства
     std::mt19937_64 engine;
     std::random_device device;
     engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
@@ -1244,13 +918,6 @@ QString* Dialog_SQL_Update::Up_VihrMersenna_Gen_ByteA(QString *massiv_gen_number
 QString* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_ByteA(QString *massiv_gen_numbers, int rasmer, int length, int gen_MM_left_edge, int gen_MM_right_edge)
 {
     // Инициализация привязки устройства
-    //std::ranlux24 engine;
-    //std::random_device device;
-    //engine.seed(device());
-
-    //std::mt19937_64 engine(std::random_device{}());
-
-    // Инициализация привязки устройства
     std::ranlux24 engine;
     std::random_device device;
     engine.seed(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
@@ -1273,7 +940,6 @@ QString* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_ByteA(QString *massiv_gen_nu
             {
                 r = 0;
             }
-            //}
         }
     }
     int P_3_1; int P_3_2, P_3_3; QString word;
@@ -1308,265 +974,3 @@ QString* Dialog_SQL_Update::Up_MacLarenMarsalii_Gen_ByteA(QString *massiv_gen_nu
     return massiv_gen_numbers;
 }
 
-
-
-/* OLD UPDATE_Students_Tasks
-void dialog_sql_update::on_lineEdit_student_id_editingFinished()
-{
-    // Построение массива на количество уникальных вариантов
-    qDebug() << "Проверка вариантов на уникальность";
-    QString query_text = "SELECT * from public.\"Tasks\"";
-    QUERY_MODEL->setQuery(query_text);
-    up_variants_number[0] = QUERY_MODEL->rowCount();
-    qDebug() << "Varinat_number_0 = " << up_variants_number[0];
-    for (int j = 1; j < Up_Colvo_Unic; ++j)
-    {
-        up_variants_number[j] = 0;
-    }
-    for(int i = 1; i <= up_variants_number[0]; ++i)
-    {
-        query_text = "SELECT * FROM public.\"Tasks\" WHERE var_number = " + QString().number(i) + ";";
-        //qDebug() << query_text;
-        QUERY_MODEL->setQuery(query_text);
-        up_variants_number[i] = QUERY_MODEL->rowCount();
-        // qDebug() << "Для варианта " << i << " найдено " << variants_number[i] << " записей";
-    }
-    qDebug() << "Конец проверки количества уникальных вариантов и записей в них";
-
-
-    //QSqlQueryModel *model = new QSqlQueryModel(this);
-    //model->setQuery("SELECT fieldWithNeedData FROM table", sqlBase); //Выбираем список фамилий из базы
-    QUERY_MODEL->setQuery("SELECT student_id FROM public.\"Students\";");
-    QLineEdit *lineEdit = new QLineEdit(this);
-    QCompleter *completer = new QCompleter(QUERY_MODEL, this);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setCompletionMode(QCompleter::PopupCompletion); //вариант с выпадающим списком.
-    lineEdit->setCompleter(completer);
-
-    //QLineEdit *lineEdit = new QLineEdit(on_lineEdit_student_id_editingFinished());
-
-
-    up_student_id = ui->lineEdit_student_id->text();
-    if ((up_student_id == "") || (up_student_id == NULL))
-    {
-        up_student_id = "";
-    }
-    else
-    {
-        // Проверка на то, что указанный идентификатор существует
-        query_text = "SELECT * FROM public.\"Students\" WHERE student_id = " + up_student_id + ";";
-        QUERY_MODEL->setQuery(query_text);
-        if((QUERY_MODEL->rowCount()) != 1)
-        {
-            QMessageBox::warning(this, "WARNING", "Введён несуществующий идентификатор студента.\n"
-                                                  "Пожалуйста, переопределите");
-            up_student_id = "";
-            ui->lineEdit_student_id->clear();
-        }
-    }
-    qDebug() << "Идентификатор студента - " << up_student_id;
-}
-
-void dialog_sql_update::on_lineEdit_full_name_editingFinished()
-{
-    up_full_name = ui->lineEdit_full_name->text();
-    qDebug() << "Имя студента - " << up_full_name;
-}
-
-
-void dialog_sql_update::on_lineEdit_student_group_editingFinished()
-{
-    up_student_group = ui->lineEdit_student_group->text();
-    qDebug() << "Группа студента - " << up_student_group;
-}
-
-void dialog_sql_update::on_lineEdit_student_var_editingFinished()
-{
-    // Построение массива на количество уникальных вариантов
-    qDebug() << "Проверка вариантов на уникальность";
-    QString query_text = "SELECT * from public.\"Tasks\"";
-    QUERY_MODEL->setQuery(query_text);
-    up_variants_number[0] = QUERY_MODEL->rowCount();
-    qDebug() << "Varinat_number_0 = " << up_variants_number[0];
-    for (int j = 1; j < Up_Colvo_Unic; ++j)
-    {
-        up_variants_number[j] = 0;
-    }
-    for(int i = 1; i <= up_variants_number[0]; ++i)
-    {
-        query_text = "SELECT * FROM public.\"Tasks\" WHERE var_number = " + QString().number(i) + ";";
-        //qDebug() << query_text;
-        QUERY_MODEL->setQuery(query_text);
-        up_variants_number[i] = QUERY_MODEL->rowCount();
-        //qDebug() << "Для варианта " << i << " найдено " << variants_number[i] << " записей";
-    }
-    qDebug() << "Конец проверки количества уникальных вариантов и записей к нему в массиве";
-
-    // Инициализация зерна генератора для Вихря Мерсенна
-    // Инициализация привязки устройства
-    std::mt19937_64 engine;
-    std::random_device device;
-    engine.seed(device());
-
-    up_student_variant = ui->lineEdit_student_var->text();
-    qDebug() << "Номер введённого варианта - " << up_student_variant;
-    if ((up_student_variant == "") || (up_student_variant == NULL))
-    {
-        up_student_variant = "";
-    }
-    else if (up_student_variant == "0")
-    {
-        int rand_variant;
-        char t = 'N';
-        while(t == 'N')
-        {
-            rand_variant = engine() % Up_Colvo_Unic;
-            if (!((up_variants_number[rand_variant] == 0) || (rand_variant == 0)))
-            {
-                up_student_variant = QString::number(rand_variant);
-                t = 'Y';
-            }
-        }
-        qDebug() << "Номер случайного варианта - " << up_student_variant;
-    }
-    else
-    {
-        QUERY_MODEL->setQuery("SELECT * FROM public.\"Tasks\" WHERE var_number = " + up_student_variant + ";");
-        int id_check = QUERY_MODEL->rowCount();
-        if (id_check == 0)
-        {
-            QMessageBox::warning(this, "WARNING", "Введён пустой вариант.\n"
-                                                 "Пожалуйста, переназначьте, или система сделает это автоматически");
-            int rand_variant;
-            char t = 'N';
-            while(t == 'N')
-            {
-                rand_variant = engine() % Up_Colvo_Unic;
-                if (!((up_variants_number[rand_variant] == 0) || (rand_variant == 0)))
-                {
-                    up_student_variant = QString::number(rand_variant);
-                    t = 'Y';
-                }
-            }
-            qDebug() << "Номер переназначенного случайного варианта - " << up_student_variant;
-        }
-    }
-    qDebug() << "Вариант студента - " << up_student_variant;
-}
-
-void dialog_sql_update::on_lineEdit_task_id_editingFinished()
-{
-    // Построение массива на количество уникальных вариантов
-    qDebug() << "Проверка вариантов на уникальность";
-    QString query_text = "SELECT * from public.\"Tasks\"";
-    QUERY_MODEL->setQuery(query_text);
-    up_variants_number[0] = QUERY_MODEL->rowCount();
-    qDebug() << "Varinat_number_0 = " << up_variants_number[0];
-    for (int j = 1; j < Up_Colvo_Unic; ++j)
-    {
-        up_variants_number[j] = 0;
-    }
-    for(int i = 1; i <= up_variants_number[0]; ++i)
-    {
-        query_text = "SELECT * FROM public.\"Tasks\" WHERE var_number = " + QString().number(i) + ";";
-        //qDebug() << query_text;
-        QUERY_MODEL->setQuery(query_text);
-        up_variants_number[i] = QUERY_MODEL->rowCount();
-        //qDebug() << "Для варианта " << i << " найдено " << variants_number[i] << " записей";
-    }
-    qDebug() << "Конец проверки количества уникальных вариантов и записей к нему в массиве";
-
-    up_task_id = ui->lineEdit_task_id->text();
-    if ((up_task_id == "") || (up_task_id == NULL))
-    {
-        up_task_id = "";
-    }
-    else
-    {
-        // Проверка на то, что указанный идентификатор существует
-        query_text = "SELECT * FROM public.\"Tasks\" WHERE task_id = " + up_task_id + ";";
-        QUERY_MODEL->setQuery(query_text);
-        if((QUERY_MODEL->rowCount()) != 1)
-        {
-            QMessageBox::warning(this, "WARNING", "Введён несуществующий идентификатор задания.\n"
-                                                  "Пожалуйста, переопределите");
-            up_task_id = "";
-            ui->lineEdit_task_id->clear();
-        }
-    }
-    qDebug() << "Идентификатор задания - " << up_task_id;
-}
-
-
-void dialog_sql_update::on_lineEdit_task_complication_editingFinished()
-{
-    up_task_complication = ui->lineEdit_task_complication->text();
-    qDebug() << "Сложность задания - " << up_task_complication;
-}
-
-
-void dialog_sql_update::on_lineEdit_task_Text_editingFinished()
-{
-    up_task_text = ui->lineEdit_task_Text->text();
-    qDebug() << "Текст задания - " << up_task_text;
-}
-
-
-void dialog_sql_update::on_lineEdit_task_var_editingFinished()
-{
-    // Построение массива на количество уникальных вариантов
-    qDebug() << "Проверка вариантов на уникальность";
-    QString query_text = "SELECT * from public.\"Tasks\"";
-    QUERY_MODEL->setQuery(query_text);
-    up_variants_number[0] = QUERY_MODEL->rowCount();
-    qDebug() << "Varinat_number_0 = " << up_variants_number[0];
-    for (int j = 1; j < Up_Colvo_Unic; ++j)
-    {
-        up_variants_number[j] = 0;
-    }
-    for(int i = 1; i <= up_variants_number[0]; ++i)
-    {
-        query_text = "SELECT * FROM public.\"Tasks\" WHERE var_number = " + QString().number(i) + ";";
-        //qDebug() << query_text;
-        QUERY_MODEL->setQuery(query_text);
-        up_variants_number[i] = QUERY_MODEL->rowCount();
-        //qDebug() << "Для варианта " << i << " найдено " << variants_number[i] << " записей";
-    }
-    qDebug() << "Конец проверки количества уникальных вариантов и записей к нему в массиве";
-
-    // Инициализация зерна генератора для Вихря Мерсенна
-    // Инициализация привязки устройства
-    std::mt19937_64 engine;
-    std::random_device device;
-    engine.seed(device());
-
-    up_task_variant = ui->lineEdit_task_var->text();
-    qDebug() << "Введёный номер варианта для задания - " << up_task_variant;
-    if ((up_task_variant == "") || (up_task_variant == NULL))
-    {
-        up_task_variant = "";
-    }
-    if(up_task_variant == "0")
-    {
-        char t = 'N';
-        int rand_variant_task;
-        while(t == 'N')
-        {
-            rand_variant_task = engine() % Up_Colvo_Unic;
-            if ((up_variants_number[rand_variant_task] > 2) || (rand_variant_task == 0))
-            {
-                t = 'N';
-                qDebug() << "Full variant number choose";
-            }
-            else if(up_variants_number[rand_variant_task] <= 2)
-            {
-                up_variants_number[rand_variant_task] += 1;
-                up_task_variant = QString::number(rand_variant_task);
-                t = 'Y';
-            }
-        }
-    }
-    qDebug() << "Текущее значение варианта для задания - " << up_task_variant;
-}
-
-*/

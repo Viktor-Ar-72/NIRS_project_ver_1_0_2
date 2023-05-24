@@ -31,7 +31,6 @@ public:
     void get_DB_Table_Info(QStringList DB_tables_list, QString **Matrix_Names, QString **Matrix_Types, int DB_Class);
     void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data, int DB_class);
     // Функции реализации генераторов
-    //int VihrMersenna_Gen(int gen_VM_left_edge, int gen_VM_right_edge, std::mt19937_64 Gen_engine);
     // Int + Bool
     int* VihrMersenna_Gen_Int(int* massiv_gen_numbers, int rasmer, int gen_VM_left_edge, int gen_VM_right_edge);
     int* MacLarenMarsalii_Gen_Int(int* massiv_gen_numbers, int rasmer, int gen_MM_left_edge, int gen_MM_right_edge);
@@ -51,29 +50,12 @@ signals:
     void InWindow();
 
 private slots:
-    //void on_comboBox_activated(int index);
-
-    //void on_lineEdit_editingFinished();
-
-    //void on_lineEdit_2_editingFinished();
-
-    //void on_lineEdit_3_editingFinished();
-
-    //void on_lineEdit_4_editingFinished();
 
     void on_pushButton_clicked();
 
     void on_pushButton_2_clicked();
 
     void on_tabWidget_Students_tabBarClicked(int index);
-
-    //void on_idTask_editingFinished();
-
-    //void on_taskComplication_editingFinished();
-
-    //void on_taskText_editingFinished();
-
-   // void on_taskVariant_editingFinished();
 
     void on_comboBox_algoritms_activated(int index);
 
@@ -89,12 +71,6 @@ private slots:
 
     void on_lineEdit_real_right_editingFinished();
 
-    /*
-    void on_lineEdit_bytea_left_editingFinished();
-
-    void on_lineEdit_bytea_right_editingFinished();
-    */
-
     void on_lineEdit_bytea_lenght_editingFinished();
 
     void on_checkBox_useBoolGen_clicked();
@@ -102,14 +78,10 @@ private slots:
 private:
     Ui::Dialog_SQL_Insert *ui;
     int N_ActiveRow;
-    void changeIndex(int i);
     QSqlQueryModel *QUERY_MODEL;
     QSqlDatabase DB;
     QSqlQuery *QUERRY;
     QSqlTableModel *TABLE_MODEL;
-    // Инициализация окна Main
-    //SQL_Window_Main *SQL_Main_Window_Init;
-    //SQL_Window_Main *WindMainSQl;
 
 };
 

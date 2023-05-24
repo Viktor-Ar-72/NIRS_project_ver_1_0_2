@@ -14,13 +14,9 @@ FirstFileBrowser::FirstFileBrowser(QWidget *parent) :
 
     // Подключение элементов GUI
     // Показать текущий список файлов
-    //connect(ui->lineEdit,SIGNAL(returnPressed()),this,SLOT(showCurrentDirFiles()));
-    // Update: если использовать returnPressed, то вылетает окно браузера, и приходится включать заново, чтобы увидеть результат.
-    // Так нормально выводит, когда жмешь за пределы линии, но при нажатии на Enter все равно есть такой баг
     connect(ui->lineEdit, SIGNAL(editingFinished()), this, SLOT(showCurrentDirFiles()));
     // Показать новый список файлов после кликов
     connect(ui->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(showNextDirFiles(QListWidgetItem*)));
-    // Этот вроде нормально работает. Можно ещё попробовать папку с точкой убрать, видел где-то гайд.
 
     // Ещё неплохо бы настроить, чтобы сразу был активен на диск D
     // Вот так работает)
@@ -35,6 +31,7 @@ void FirstFileBrowser::copyAdressReturn(QListWidgetItem *item)
 {
     // Можно получить имя файла, дважды кликнув по нему
     QString file_name = item->text();
+    qDebug() << "file_name = " << file_name;
     // Запись имени в глобальную переменную
     Object_Adress = ui->lineEdit->text() + "/" + item->text() + "/";
     qDebug() << "Global address (one click) = " + Object_Adress;
@@ -115,16 +112,6 @@ void FirstFileBrowser::showFileInfoList(QFileInfoList pInfoList)
             continue;
         }
 
-        /*
-        // Чтобы пользователю было проще
-        QString dop = "";
-        if (object_name == "..")
-        {
-            //object_name = "Перейти в в папку верхнего уровня";
-            dop = ".Перейти в папку верхнего уровня...";
-        }
-        // Но это не очень работает - при замене имени перестают работать папки верхнего уровня
-        */
 
         // Переменная для данных выводимого объекта
         QListWidgetItem *tmpItem = new QListWidgetItem(object_name);

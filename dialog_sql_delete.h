@@ -28,7 +28,7 @@ public:
     void get_DB_connection_from_MainWindow(QSqlDatabase DB_conn_data, int DB_Class);
 
 signals:
-    // Подключение окна InsertWindow
+    // Подключение окна DeleteWindow
     void DelWindow();
 
 private slots:
@@ -39,26 +39,6 @@ private slots:
 
     void on_tabWidget_Delete_tabBarClicked(int index);
 
-    /* OLD DELETE
-     *
-     *     //void on_tabWidget_Students_tabBarClicked(int index);
-    //void on_lineEdit_editingFinished();
-
-    //void on_lineEdit_2_editingFinished();
-
-    //void on_lineEdit_3_editingFinished();
-
-    //void on_lineEdit_4_editingFinished();
-
-    //void on_idTask_editingFinished();
-
-    //void on_taskComplication_editingFinished();
-
-    //void on_taskText_editingFinished();
-
-    //void on_taskVariant_editingFinished();
-*/
-
     void on_lineEdit_strok_start_editingFinished();
 
     void on_lineEdit_strok_end_editingFinished();
@@ -66,7 +46,6 @@ private slots:
 private:
     Ui::Dialog_SQL_Delete *ui;
 
-    void changeIndex(int i);
     QSqlQueryModel *QUERY_MODEL;
     QSqlDatabase DB;
     QSqlQuery *QUERRY;
